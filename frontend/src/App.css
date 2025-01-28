@@ -1,5 +1,165 @@
+:root {
+  --primary-color: #2e7d32;
+  --primary-light: #60ad5e;
+  --primary-dark: #005005;
+  --secondary-color: #ff9800;
+  --secondary-light: #ffc947;
+  --secondary-dark: #c66900;
+  --text-primary: #212121;
+  --text-secondary: #757575;
+  --background-default: #ffffff;
+  --background-paper: #f5f5f5;
+  --error-color: #d32f2f;
+  --success-color: #2e7d32;
+  --warning-color: #ed6c02;
+  --info-color: #0288d1;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+}
+
+/* Mobile-first responsive font sizes */
+@media (max-width: 600px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
 .App {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   text-align: center;
+}
+
+/* Responsive images */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Responsive container padding */
+.MuiContainer-root {
+  padding-left: 16px !important;
+  padding-right: 16px !important;
+}
+
+@media (max-width: 600px) {
+  .MuiContainer-root {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+}
+
+/* Slick slider responsive styles */
+.slick-slider {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.slick-slide img {
+  width: 100%;
+  height: auto;
+}
+
+/* Custom scrollbar for better mobile experience */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+/* Touch-friendly buttons */
+button {
+  min-height: 44px; /* Minimum touch target size */
+  touch-action: manipulation;
+}
+
+/* Responsive grid adjustments */
+.MuiGrid-container {
+  margin: 0 !important;
+  width: 100% !important;
+}
+
+/* Better spacing for mobile */
+@media (max-width: 600px) {
+  .MuiGrid-item {
+    padding: 8px !important;
+  }
+}
+
+/* Responsive typography */
+.MuiTypography-h4 {
+  font-size: 1.75rem !important;
+}
+
+@media (max-width: 600px) {
+  .MuiTypography-h4 {
+    font-size: 1.5rem !important;
+  }
+}
+
+/* Form elements responsive styles */
+.MuiTextField-root {
+  width: 100%;
+}
+
+/* Card responsive styles */
+.MuiCard-root {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.MuiCardContent-root {
+  flex-grow: 1;
+}
+
+/* Mobile-friendly input fields */
+input, select, textarea {
+  font-size: 16px !important; /* Prevents iOS zoom on focus */
+}
+
+/* Responsive table styles */
+.MuiTable-root {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Better tap targets for mobile */
+.MuiButtonBase-root {
+  padding: 8px 16px !important;
+}
+
+@media (max-width: 600px) {
+  .MuiButtonBase-root {
+    padding: 12px 16px !important;
+  }
 }
 
 .App-logo {
@@ -34,5 +194,43 @@
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* Root and body styles for full-height layout */
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Main content wrapper */
+.main-content {
+  flex: 1 0 auto;
+  width: 100%;
+}
+
+/* Footer styles */
+footer {
+  flex-shrink: 0;
+  width: 100%;
+  background-color: var(--primary-color);
+  color: white;
+  margin-top: auto;
+}
+
+/* Container max-width for larger screens */
+.container {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (min-width: 1600px) {
+  .container {
+    max-width: 1600px;
   }
 }
