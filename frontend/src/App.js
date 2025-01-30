@@ -9,6 +9,7 @@ import Register from './pages/Register';
 import Cart from './pages/Cart';
 import Products from './pages/Products';
 import ProductDetail from './pages/ProductDetail';
+import { Analytics } from "@vercel/analytics/react";
 
 // Create theme
 const theme = createTheme({
@@ -111,6 +112,7 @@ function App() {
           <Footer />
         </Box>
       </Router>
+      <Analytics />
     </ThemeProvider>
   );
 }
