@@ -92,7 +92,13 @@ const Products = () => {
         <Grid container spacing={2}>
           <Grid item xs={12} sm={4}>
             <FormControl fullWidth>
-              <InputLabel>Category</InputLabel>
+              <InputLabel sx={{ 
+                backgroundColor: 'background.paper',
+                px: 1,
+                transform: 'translate(14px, -6px) scale(0.75)'
+              }}>
+                Category
+              </InputLabel>
               <Select value={category} onChange={handleCategoryChange}>
                 <MenuItem value="all">All Categories</MenuItem>
                 <MenuItem value="seeds">Seeds</MenuItem>
@@ -104,7 +110,13 @@ const Products = () => {
           </Grid>
           <Grid item xs={12} sm={4}>
             <FormControl fullWidth>
-              <InputLabel>Sort By</InputLabel>
+              <InputLabel sx={{ 
+                backgroundColor: 'background.paper',
+                px: 1,
+                transform: 'translate(14px, -6px) scale(0.75)'
+              }}>
+                Sort By
+              </InputLabel>
               <Select value={sortBy} onChange={handleSortChange}>
                 <MenuItem value="featured">Featured</MenuItem>
                 <MenuItem value="price-low">Price: Low to High</MenuItem>
