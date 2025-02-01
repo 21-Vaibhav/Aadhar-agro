@@ -143,7 +143,7 @@ const Products = () => {
               <CardMedia
                 component="img"
                 height="200"
-                image={product.imageUrl}
+                image={product.images[0]}
                 alt={product.name}
               />
               <CardContent>

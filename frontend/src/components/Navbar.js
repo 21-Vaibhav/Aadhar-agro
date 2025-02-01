@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import {
   AppBar,
@@ -29,8 +29,12 @@ import {
   Info as InfoIcon,
   ContactMail as ContactIcon,
   Close as CloseIcon,
+  Logout as LogoutIcon,
 } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
+import { signOut, onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../firebase';
+import { useNavigate } from 'react-router-dom';
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   backgroundColor: 'white',
@@ -93,6 +97,25 @@ const Navbar = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      navigate('/login');
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -120,6 +143,22 @@ const Navbar = () => {
         </IconButton>
       </DrawerHeader>
       <Divider />
+      {user && (
+        <Box sx={{ p: 2, bgcolor: 'rgba(46, 125, 50, 0.1)' }}>
+          <Typography
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 1,
+              color: 'primary.main',
+              fontWeight: 500,
+            }}
+          >
+            <PersonIcon color="primary" />
+            {user.displayName || 'User'}
+          </Typography>
+        </Box>
+      )}
       <List>
         {menuItems.map((item) => (
           <ListItem 
@@ -161,40 +200,61 @@ const Navbar = () => {
           </ListItemIcon>
           <ListItemText primary="Cart" />
         </ListItem>
-        <ListItem 
-          component={RouterLink} 
-          to="/login"
-          onClick={handleDrawerToggle}
-          sx={{
-            color: 'inherit',
-            textDecoration: 'none',
-            '&:hover': {
-              backgroundColor: 'rgba(0,0,0,0.04)',
-            },
-          }}
-        >
-          <ListItemIcon sx={{ color: theme.palette.primary.main }}>
-            <PersonIcon />
-          </ListItemIcon>
-          <ListItemText primary="Sign In" />
-        </ListItem>
-        <ListItem 
-          component={RouterLink} 
-          to="/register"
-          onClick={handleDrawerToggle}
-          sx={{
-            color: 'inherit',
-            textDecoration: 'none',
-            '&:hover': {
-              backgroundColor: 'rgba(0,0,0,0.04)',
-            },
-          }}
-        >
-          <ListItemIcon sx={{ color: theme.palette.primary.main }}>
-            <PersonIcon />
-          </ListItemIcon>
-          <ListItemText primary="Register" />
-        </ListItem>
+        {user ? (
+          <ListItem 
+            button
+            onClick={() => {
+              handleLogout();
+              handleDrawerToggle();
+            }}
+            sx={{
+              color: 'inherit',
+              '&:hover': {
+                backgroundColor: 'rgba(0,0,0,0.04)',
+              },
+            }}
+          >
+            <ListItemIcon sx={{ color: theme.palette.primary.main }}>
+              <LogoutIcon />
+            </ListItemIcon>
+            <ListItemText primary="Logout" />
+          </ListItem>
+        ) : (
+          <>
+            <ListItem 
+              component={RouterLink} 
+              to="/login"
+              onClick={handleDrawerToggle}
+              sx={{
+                color: 'inherit',
+                '&:hover': {
+                  backgroundColor: 'rgba(0,0,0,0.04)',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: theme.palette.primary.main }}>
+                <PersonIcon />
+              </ListItemIcon>
+              <ListItemText primary="Sign In" />
+            </ListItem>
+            <ListItem 
+              component={RouterLink} 
+              to="/register"
+              onClick={handleDrawerToggle}
+              sx={{
+                color: 'inherit',
+                '&:hover': {
+                  backgroundColor: 'rgba(0,0,0,0.04)',
+                },
+              }}
+            >
+              <ListItemIcon sx={{ color: theme.palette.primary.main }}>
+                <PersonIcon />
+              </ListItemIcon>
+              <ListItemText primary="Register" />
+            </ListItem>
+          </>
+        )}
       </List>
     </Box>
   );
@@ -240,23 +300,71 @@ const Navbar = () => {
               </MenuButton>
             )}
 
-            {/* Logo */}
-            <Typography
-              variant="h6"
-              noWrap
-              component={RouterLink}
-              to="/"
+            {/* Logo and User Info Container for Mobile */}
+            <Box
               sx={{
-                mr: 2,
                 display: 'flex',
-                fontWeight: 700,
-                color: 'primary.main',
-                textDecoration: 'none',
+                alignItems: 'center',
                 flexGrow: { xs: 1, md: 0 },
+                justifyContent: 'space-between',
               }}
             >
-              AADHAR AGRO
-            </Typography>
+              <Typography
+                variant="h6"
+                noWrap
+                component={RouterLink}
+                to="/"
+                sx={{
+                  fontWeight: 700,
+                  color: 'primary.main',
+                  textDecoration: 'none',
+                }}
+              >
+                AADHAR AGRO
+              </Typography>
+
+              {/* Mobile User Name */}
+              {isMobile && user && (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    background: 'linear-gradient(45deg, rgba(46, 125, 50, 0.08), rgba(46, 125, 50, 0.15))',
+                    borderRadius: '20px',
+                    padding: '6px 12px',
+                    ml: 2,
+                    border: '1px solid rgba(46, 125, 50, 0.1)',
+                    boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                      background: 'linear-gradient(45deg, rgba(46, 125, 50, 0.12), rgba(46, 125, 50, 0.2))',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                    },
+                  }}
+                >
+                  <PersonIcon 
+                    sx={{ 
+                      fontSize: '1rem',
+                      color: 'primary.main',
+                      opacity: 0.9,
+                      mr: 0.7,
+                    }}
+                  />
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      color: 'primary.main',
+                      fontWeight: 600,
+                      fontSize: '0.9rem',
+                      letterSpacing: '0.2px',
+                      textShadow: '0 1px 1px rgba(255,255,255,0.5)',
+                    }}
+                  >
+                    {user.displayName || 'User'}
+                  </Typography>
+                </Box>
+              )}
+            </Box>
 
             {/* Desktop Menu */}
             <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
@@ -295,32 +403,67 @@ const Navbar = () => {
               >
                 Cart
               </Button>
-              <Button
-                component={RouterLink}
-                to="/login"
-                color="primary"
-                variant="outlined"
-                startIcon={<PersonIcon />}
-                sx={{ 
-                  borderRadius: '8px',
-                  borderWidth: 2,
-                  '&:hover': {
-                    borderWidth: 2,
-                  }
-                }}
-              >
-                Sign In
-              </Button>
-              <Button
-                component={RouterLink}
-                to="/register"
-                variant="contained"
-                color="primary"
-                startIcon={<PersonIcon />}
-                sx={{ borderRadius: '8px' }}
-              >
-                Register
-              </Button>
+              
+              {user ? (
+                <>
+                  <Typography
+                    sx={{
+                      color: 'text.primary',
+                      fontWeight: 500,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1,
+                    }}
+                  >
+                    <PersonIcon color="primary" />
+                    {user.displayName || 'User'}
+                  </Typography>
+                  <Button
+                    color="primary"
+                    variant="outlined"
+                    onClick={handleLogout}
+                    startIcon={<LogoutIcon />}
+                    sx={{ 
+                      borderRadius: '8px',
+                      borderWidth: 2,
+                      '&:hover': {
+                        borderWidth: 2,
+                      }
+                    }}
+                  >
+                    Logout
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    component={RouterLink}
+                    to="/login"
+                    color="primary"
+                    variant="outlined"
+                    startIcon={<PersonIcon />}
+                    sx={{ 
+                      borderRadius: '8px',
+                      borderWidth: 2,
+                      '&:hover': {
+                        borderWidth: 2,
+                      }
+                    }}
+                  >
+                    Sign In
+                  </Button>
+                  <Button
+                    component={RouterLink}
+                    to="/register"
+                    variant="contained"
+                    color="primary"
+                    startIcon={<PersonIcon />}
+                    sx={{ borderRadius: '8px' }}
+                  >
+                    Register
+                  </Button>
+                </>
+              )}
             </Stack>
           </Toolbar>
         </Container>
@@ -333,7 +476,7 @@ const Navbar = () => {
         open={mobileOpen}
         onClose={handleDrawerToggle}
         ModalProps={{
-          keepMounted: true, // Better open performance on mobile.
+          keepMounted: true,
         }}
         sx={{
           display: { xs: 'block', md: 'none' },

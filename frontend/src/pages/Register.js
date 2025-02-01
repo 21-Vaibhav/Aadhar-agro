@@ -10,85 +10,123 @@ import {
   Paper,
   InputAdornment,
   IconButton,
-  Grid,
   Alert,
+  CircularProgress,
 } from '@mui/material';
 import {
   Person as PersonIcon,
-  Lock as LockIcon,
   Email as EmailIcon,
+  Lock as LockIcon,
   Phone as PhoneIcon,
   Visibility,
   VisibilityOff,
 } from '@mui/icons-material';
-import { getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
+import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
-import { db } from '../firebase';
+import { auth, db } from '../firebase';
 
 const Register = () => {
   const navigate = useNavigate();
-  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
+    fullName: '',
     email: '',
     phone: '',
     password: '',
     confirmPassword: '',
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevState => ({
-      ...prevState,
+    setFormData(prev => ({
+      ...prev,
       [name]: value
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (formData.password !== formData.confirmPassword) {
-      return setError('Passwords do not match');
+  const validateForm = () => {
+    if (!formData.fullName || !formData.email || !formData.phone || !formData.password || !formData.confirmPassword) {
+      setError('All fields are required.');
+      return false;
     }
 
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match.');
+      return false;
+    }
+
+    if (formData.password.length < 6) {
+      setError('Password should be at least 6 characters long.');
+      return false;
+    }
+
+    const phoneRegex = /^[0-9]{10}$/;
+    if (!phoneRegex.test(formData.phone)) {
+      setError('Please enter a valid 10-digit phone number.');
+      return false;
+    }
+
+    return true;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     setError('');
+
+    if (!validateForm()) return;
+
     setLoading(true);
 
     try {
-      const auth = getAuth();
-      const { user } = await createUserWithEmailAndPassword(
+      // Create user in Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(
         auth,
         formData.email,
         formData.password
       );
 
+      // Update user profile with full name
+      await updateProfile(userCredential.user, {
+        displayName: formData.fullName
+      });
+
       // Store additional user data in Firestore
-      await setDoc(doc(db, 'users', user.uid), {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
+      await setDoc(doc(db, 'users', userCredential.user.uid), {
+        fullName: formData.fullName,
         email: formData.email,
         phone: formData.phone,
         createdAt: new Date().toISOString(),
       });
 
-      navigate('/');
-    } catch (error) {
-      console.error('Registration error:', error);
-      setError(error.message);
+      navigate('/login'); // Redirect to login page after successful registration
+    } catch (err) {
+      console.error('Registration error:', err);
+      switch (err.code) {
+        case 'auth/email-already-in-use':
+          setError('This email is already registered.');
+          break;
+        case 'auth/invalid-email':
+          setError('Invalid email address.');
+          break;
+        case 'auth/operation-not-allowed':
+          setError('Email/password accounts are not enabled.');
+          break;
+        case 'auth/weak-password':
+          setError('Password is too weak.');
+          break;
+        default:
+          setError('Failed to create account. Please try again.');
+      }
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
-  };
-
-  const handleClickShowPassword = () => {
-    setShowPassword(!showPassword);
   };
 
   return (
-    <Container maxWidth="sm">
+    <Container maxWidth="xs">
       <Box
         sx={{
           mt: 8,
@@ -106,124 +144,103 @@ const Register = () => {
             borderRadius: 2,
           }}
         >
-          <Box
-            component="form"
-            onSubmit={handleSubmit}
+          <Typography
+            component="h1"
+            variant="h5"
             sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: 2,
+              mb: 3,
+              textAlign: 'center',
+              fontWeight: 600,
+              color: 'primary.main',
             }}
           >
-            <Typography
-              component="h1"
-              variant="h4"
-              sx={{
-                mb: 3,
-                color: 'primary.main',
-                fontWeight: 600,
-              }}
-            >
-              Create Account
-            </Typography>
+            Create Account
+          </Typography>
 
-            {error && (
-              <Alert severity="error" sx={{ width: '100%', mb: 2 }}>
-                {error}
-              </Alert>
-            )}
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
 
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="First Name"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleChange}
-                  required
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <PersonIcon color="action" />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <TextField
-                  fullWidth
-                  label="Last Name"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleChange}
-                  required
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <PersonIcon color="action" />
-                      </InputAdornment>
-                    ),
-                  }}
-                />
-              </Grid>
-            </Grid>
-
+          <Box component="form" onSubmit={handleSubmit}>
             <TextField
+              margin="normal"
+              required
               fullWidth
+              id="fullName"
+              label="Full Name"
+              name="fullName"
+              autoComplete="name"
+              autoFocus
+              value={formData.fullName}
+              onChange={handleChange}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <PersonIcon color="primary" />
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="email"
               label="Email Address"
               name="email"
-              type="email"
+              autoComplete="email"
               value={formData.email}
               onChange={handleChange}
-              required
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <EmailIcon color="action" />
+                    <EmailIcon color="primary" />
                   </InputAdornment>
                 ),
               }}
             />
-
             <TextField
+              margin="normal"
+              required
               fullWidth
+              id="phone"
               label="Phone Number"
               name="phone"
-              type="tel"
+              autoComplete="tel"
               value={formData.phone}
               onChange={handleChange}
-              required
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <PhoneIcon color="action" />
+                    <PhoneIcon color="primary" />
                   </InputAdornment>
                 ),
               }}
             />
-
             <TextField
+              margin="normal"
+              required
               fullWidth
-              label="Password"
               name="password"
+              label="Password"
               type={showPassword ? 'text' : 'password'}
+              id="password"
+              autoComplete="new-password"
               value={formData.password}
               onChange={handleChange}
-              required
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <LockIcon color="action" />
+                    <LockIcon color="primary" />
                   </InputAdornment>
                 ),
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton
                       aria-label="toggle password visibility"
-                      onClick={handleClickShowPassword}
+                      onClick={() => setShowPassword(!showPassword)}
                       edge="end"
                     >
                       {showPassword ? <VisibilityOff /> : <Visibility />}
@@ -232,47 +249,56 @@ const Register = () => {
                 ),
               }}
             />
-
             <TextField
+              margin="normal"
+              required
               fullWidth
-              label="Confirm Password"
               name="confirmPassword"
-              type={showPassword ? 'text' : 'password'}
+              label="Confirm Password"
+              type={showConfirmPassword ? 'text' : 'password'}
+              id="confirmPassword"
+              autoComplete="new-password"
               value={formData.confirmPassword}
               onChange={handleChange}
-              required
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <LockIcon color="action" />
+                    <LockIcon color="primary" />
+                  </InputAdornment>
+                ),
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      edge="end"
+                    >
+                      {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
                   </InputAdornment>
                 ),
               }}
             />
-
             <Button
               type="submit"
               fullWidth
               variant="contained"
-              size="large"
-              sx={{ mt: 2 }}
+              sx={{ mt: 3, mb: 2, py: 1.5 }}
               disabled={loading}
             >
-              {loading ? 'Creating Account...' : 'Create Account'}
+              {loading ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                'Sign Up'
+              )}
             </Button>
-
-            <Box sx={{ mt: 2, textAlign: 'center' }}>
+            <Box sx={{ textAlign: 'center' }}>
               <Link
                 component={RouterLink}
                 to="/login"
                 variant="body2"
-                sx={{
-                  color: 'primary.main',
-                  textDecoration: 'none',
-                  '&:hover': {
-                    textDecoration: 'underline',
-                  },
-                }}
+                color="primary"
+                sx={{ textDecoration: 'none' }}
               >
                 Already have an account? Sign In
               </Link>

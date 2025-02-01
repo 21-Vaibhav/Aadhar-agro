@@ -11,52 +11,74 @@ import {
   InputAdornment,
   IconButton,
   Alert,
+  CircularProgress,
 } from '@mui/material';
 import {
-  Person as PersonIcon,
-  Lock as LockIcon,
   Visibility,
   VisibilityOff,
+  Email as EmailIcon,
+  Lock as LockIcon,
 } from '@mui/icons-material';
-import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '../firebase';
 
 const Login = () => {
   const navigate = useNavigate();
-  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevState => ({
-      ...prevState,
+    setFormData(prev => ({
+      ...prev,
       [name]: value
     }));
+  };
+
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setSuccess(false);
     setLoading(true);
 
     try {
-      const auth = getAuth();
-      await signInWithEmailAndPassword(auth, formData.email, formData.password);
-      navigate('/');
-    } catch (error) {
-      console.error('Login error:', error);
-      setError('Failed to login. Please check your credentials.');
+      const { email, password } = formData;
+      await signInWithEmailAndPassword(auth, email, password);
+      setSuccess(true);
+      setTimeout(() => {
+        navigate('/'); // Redirect to home page after successful login
+      }, 1500); // Redirect after showing success message for 1.5 seconds
+    } catch (err) {
+      console.error('Login error:', err);
+      switch (err.code) {
+        case 'auth/invalid-email':
+          setError('Invalid email address.');
+          break;
+        case 'auth/user-disabled':
+          setError('This account has been disabled.');
+          break;
+        case 'auth/user-not-found':
+          setError('No account found with this email.');
+          break;
+        case 'auth/wrong-password':
+          setError('Incorrect password.');
+          break;
+        default:
+          setError('Failed to log in. Please try again.');
+      }
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
-  };
-
-  const handleClickShowPassword = () => {
-    setShowPassword(!showPassword);
   };
 
   return (
@@ -78,63 +100,66 @@ const Login = () => {
             borderRadius: 2,
           }}
         >
-          <Box
-            component="form"
-            onSubmit={handleSubmit}
+          <Typography
+            component="h1"
+            variant="h5"
             sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: 2,
+              mb: 3,
+              textAlign: 'center',
+              fontWeight: 600,
+              color: 'primary.main',
             }}
           >
-            <Typography
-              component="h1"
-              variant="h4"
-              sx={{
-                mb: 3,
-                color: 'primary.main',
-                fontWeight: 600,
-              }}
-            >
-              Sign In
-            </Typography>
+            Sign In
+          </Typography>
 
-            {error && (
-              <Alert severity="error" sx={{ width: '100%', mb: 2 }}>
-                {error}
-              </Alert>
-            )}
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
 
+          {success && (
+            <Alert severity="success" sx={{ mb: 2 }}>
+              Successfully logged in! Redirecting...
+            </Alert>
+          )}
+
+          <Box component="form" onSubmit={handleSubmit}>
             <TextField
+              margin="normal"
+              required
               fullWidth
+              id="email"
               label="Email Address"
               name="email"
-              type="email"
+              autoComplete="email"
+              autoFocus
               value={formData.email}
               onChange={handleChange}
-              required
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <PersonIcon color="action" />
+                    <EmailIcon color="primary" />
                   </InputAdornment>
                 ),
               }}
             />
-
             <TextField
+              margin="normal"
+              required
               fullWidth
-              label="Password"
               name="password"
+              label="Password"
               type={showPassword ? 'text' : 'password'}
+              id="password"
+              autoComplete="current-password"
               value={formData.password}
               onChange={handleChange}
-              required
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <LockIcon color="action" />
+                    <LockIcon color="primary" />
                   </InputAdornment>
                 ),
                 endAdornment: (
@@ -150,32 +175,45 @@ const Login = () => {
                 ),
               }}
             />
-
             <Button
               type="submit"
               fullWidth
               variant="contained"
-              size="large"
-              sx={{ mt: 2 }}
+              sx={{ mt: 3, mb: 2, py: 1.5 }}
               disabled={loading}
             >
-              {loading ? 'Signing in...' : 'Sign In'}
+              {loading ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                'Sign In'
+              )}
             </Button>
-
-            <Box sx={{ mt: 2, textAlign: 'center' }}>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                flexDirection: 'column',
+                gap: 1,
+              }}
+            >
               <Link
                 component={RouterLink}
                 to="/register"
                 variant="body2"
-                sx={{
-                  color: 'primary.main',
-                  textDecoration: 'none',
-                  '&:hover': {
-                    textDecoration: 'underline',
-                  },
-                }}
+                color="primary"
+                sx={{ textDecoration: 'none' }}
               >
                 Don't have an account? Sign Up
+              </Link>
+              <Link
+                component={RouterLink}
+                to="#"
+                variant="body2"
+                color="primary"
+                sx={{ textDecoration: 'none' }}
+              >
+                Forgot password?
               </Link>
             </Box>
           </Box>
