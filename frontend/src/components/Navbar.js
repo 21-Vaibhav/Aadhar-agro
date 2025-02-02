@@ -35,6 +35,7 @@ import { styled } from '@mui/material/styles';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '../firebase';
 import { useNavigate } from 'react-router-dom';
+import { useCart } from '../context/CartContext';
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   backgroundColor: 'white',
@@ -99,6 +100,7 @@ const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
+  const { getItemCount } = useCart();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -111,7 +113,7 @@ const Navbar = () => {
   const handleLogout = async () => {
     try {
       await signOut(auth);
-      navigate('/login');
+      navigate('/');
     } catch (error) {
       console.error('Error logging out:', error);
     }
@@ -121,7 +123,7 @@ const Navbar = () => {
     setMobileOpen(!mobileOpen);
   };
 
-  const cartCount = 0; // Replace with actual cart count
+  const cartCount = getItemCount();
 
   const drawer = (
     <Box sx={{ width: 280 }}>

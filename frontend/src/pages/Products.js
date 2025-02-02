@@ -2,12 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {
   Container,
   Grid,
-  Card,
-  CardMedia,
-  CardContent,
-  Typography,
-  CardActions,
-  Button,
   Box,
   FormControl,
   InputLabel,
@@ -18,6 +12,7 @@ import {
 } from '@mui/material';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
+import ProductCard from '../components/ProductCard';
 
 const Products = () => {
   const [products, setProducts] = useState([]);
@@ -139,33 +134,7 @@ const Products = () => {
       <Grid container spacing={3}>
         {displayedProducts.map((product) => (
           <Grid item key={product.id} xs={12} sm={6} md={4} lg={3}>
-            <Card>
-              <CardMedia
-                component="img"
-                height="200"
-                image={product.images[0]}
-                alt={product.name}
-              />
-              <CardContent>
-                <Typography gutterBottom variant="h6" component="div">
-                  {product.name}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  {product.description}
-                </Typography>
-                <Typography variant="h6" color="primary" sx={{ mt: 2 }}>
-                  ₹{product.price}
-                </Typography>
-              </CardContent>
-              <CardActions>
-                <Button size="small" color="primary">
-                  Add to Cart
-                </Button>
-                <Button size="small" color="primary">
-                  View Details
-                </Button>
-              </CardActions>
-            </Card>
+            <ProductCard product={product} />
           </Grid>
         ))}
       </Grid>

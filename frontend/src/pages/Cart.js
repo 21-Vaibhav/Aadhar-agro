@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -10,7 +10,6 @@ import {
   Button,
   IconButton,
   Box,
-  Divider,
   TextField,
   useTheme,
   useMediaQuery,
@@ -22,88 +21,29 @@ import {
   Delete as DeleteIcon,
   ShoppingCart as CartIcon,
 } from '@mui/icons-material';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { getAuth } from 'firebase/auth';
-import { db } from '../firebase';
+import { useCart } from '../context/CartContext';
 
 const Cart = () => {
   const navigate = useNavigate();
-  const [cartItems, setCartItems] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { cartItems, updateQuantity, removeFromCart, total } = useCart();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
-  useEffect(() => {
-    const fetchCartItems = async () => {
-      const auth = getAuth();
-      if (!auth.currentUser) {
-        navigate('/login');
-        return;
-      }
-
-      try {
-        const userDoc = doc(db, 'users', auth.currentUser.uid);
-        const userSnapshot = await getDoc(userDoc);
-        
-        if (userSnapshot.exists()) {
-          const userData = userSnapshot.data();
-          if (userData.cart) {
-            setCartItems(userData.cart);
-          }
-        }
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching cart items:', error);
-        setLoading(false);
-      }
-    };
-
-    fetchCartItems();
-  }, [navigate]);
-
-  const updateCartInFirestore = async (newCartItems) => {
-    const auth = getAuth();
-    if (!auth.currentUser) return;
-
-    try {
-      const userDoc = doc(db, 'users', auth.currentUser.uid);
-      await updateDoc(userDoc, {
-        cart: newCartItems
-      });
-    } catch (error) {
-      console.error('Error updating cart:', error);
+  const handleQuantityChange = (itemId, selectedSize, change) => {
+    const item = cartItems.find(i => i.id === itemId && i.selectedSize === selectedSize);
+    if (item) {
+      updateQuantity(itemId, selectedSize, item.quantity + change);
     }
   };
 
-  const handleQuantityChange = (itemId, change) => {
-    const updatedCart = cartItems.map(item => {
-      if (item.id === itemId) {
-        const newQuantity = Math.max(1, item.quantity + change);
-        return { ...item, quantity: newQuantity };
-      }
-      return item;
-    });
-    setCartItems(updatedCart);
-    updateCartInFirestore(updatedCart);
+  const handleRemoveItem = (itemId, selectedSize) => {
+    removeFromCart(itemId, selectedSize);
   };
 
-  const handleRemoveItem = (itemId) => {
-    const updatedCart = cartItems.filter(item => item.id !== itemId);
-    setCartItems(updatedCart);
-    updateCartInFirestore(updatedCart);
+  const handleCheckout = () => {
+    // TODO: Implement checkout logic
+    navigate('/checkout');
   };
-
-  const calculateTotal = () => {
-    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
-  };
-
-  if (loading) {
-    return (
-      <Container sx={{ py: 4 }}>
-        <Typography>Loading cart...</Typography>
-      </Container>
-    );
-  }
 
   if (cartItems.length === 0) {
     return (
@@ -127,6 +67,7 @@ const Cart = () => {
             variant="contained"
             color="primary"
             onClick={() => navigate('/products')}
+            sx={{ backgroundColor: '#2e7d32' }}
           >
             Continue Shopping
           </Button>
@@ -137,18 +78,21 @@ const Cart = () => {
 
   return (
     <Container sx={{ py: 4 }}>
-      <Typography variant="h4" gutterBottom>
+      <Typography variant="h4" gutterBottom sx={{ color: '#1a1a1a' }}>
         Shopping Cart
       </Typography>
       <Grid container spacing={4}>
         <Grid item xs={12} md={8}>
           {cartItems.map((item) => (
             <Card 
-              key={item.id} 
+              key={`${item.id}-${item.selectedSize}`}
               sx={{ 
                 mb: 2,
                 display: 'flex',
-                flexDirection: isMobile ? 'column' : 'row'
+                flexDirection: isMobile ? 'column' : 'row',
+                borderRadius: '12px',
+                overflow: 'hidden',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
               }}
             >
               <CardMedia
@@ -156,21 +100,44 @@ const Cart = () => {
                 sx={{ 
                   width: isMobile ? '100%' : 200,
                   height: isMobile ? 200 : 'auto',
-                  objectFit: 'cover'
+                  objectFit: 'contain',
+                  backgroundColor: '#fff',
+                  p: 2
                 }}
-                image={item.image}
+                image={item.images?.[0]}
                 alt={item.name}
               />
-              <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+              <CardContent sx={{ 
+                flex: 1, 
+                display: 'flex', 
+                flexDirection: 'column',
+                p: 3
+              }}>
                 <Box sx={{ mb: 2 }}>
-                  <Typography variant="h6" gutterBottom>
+                  <Typography variant="h6" gutterBottom sx={{ color: '#1a1a1a' }}>
                     {item.name}
                   </Typography>
                   <Typography variant="body2" color="text.secondary" paragraph>
-                    {item.description}
+                    Size: {item.selectedSize}
                   </Typography>
-                  <Typography variant="h6" color="primary">
-                    ₹{item.price}
+                  <Typography variant="h6" sx={{ color: '#2e7d32', fontWeight: 600 }}>
+                    ₹{item.discount 
+                      ? Math.round(item.price * (1 - item.discount / 100))
+                      : item.price
+                    }
+                    {item.discount > 0 && (
+                      <Typography 
+                        component="span" 
+                        sx={{ 
+                          ml: 1,
+                          color: '#999',
+                          textDecoration: 'line-through',
+                          fontSize: '0.9rem'
+                        }}
+                      >
+                        ₹{item.price}
+                      </Typography>
+                    )}
                   </Typography>
                 </Box>
                 <Box 
@@ -178,13 +145,16 @@ const Cart = () => {
                     mt: 'auto',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'space-between'
+                    justifyContent: 'space-between',
+                    flexWrap: 'wrap',
+                    gap: 2
                   }}
                 >
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <IconButton 
-                      onClick={() => handleQuantityChange(item.id, -1)}
+                      onClick={() => handleQuantityChange(item.id, item.selectedSize, -1)}
                       disabled={item.quantity <= 1}
+                      sx={{ color: '#2e7d32' }}
                     >
                       <RemoveIcon />
                     </IconButton>
@@ -193,16 +163,25 @@ const Cart = () => {
                       value={item.quantity}
                       InputProps={{
                         readOnly: true,
-                        sx: { width: '60px', textAlign: 'center' }
+                        sx: { 
+                          width: '60px', 
+                          textAlign: 'center',
+                          '& .MuiOutlinedInput-input': {
+                            textAlign: 'center'
+                          }
+                        }
                       }}
                     />
-                    <IconButton onClick={() => handleQuantityChange(item.id, 1)}>
+                    <IconButton 
+                      onClick={() => handleQuantityChange(item.id, item.selectedSize, 1)}
+                      sx={{ color: '#2e7d32' }}
+                    >
                       <AddIcon />
                     </IconButton>
                   </Box>
                   <IconButton 
-                    onClick={() => handleRemoveItem(item.id)}
-                    color="error"
+                    onClick={() => handleRemoveItem(item.id, item.selectedSize)}
+                    sx={{ color: '#666' }}
                   >
                     <DeleteIcon />
                   </IconButton>
@@ -212,32 +191,44 @@ const Cart = () => {
           ))}
         </Grid>
         <Grid item xs={12} md={4}>
-          <Card>
-            <CardContent>
-              <Typography variant="h6" gutterBottom>
-                Order Summary
-              </Typography>
-              <Divider sx={{ my: 2 }} />
-              <Box sx={{ mb: 2 }}>
-                <Grid container justifyContent="space-between">
-                  <Grid item>
-                    <Typography>Subtotal</Typography>
-                  </Grid>
-                  <Grid item>
-                    <Typography>₹{calculateTotal()}</Typography>
-                  </Grid>
-                </Grid>
+          <Card sx={{ 
+            p: 3, 
+            borderRadius: '12px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+          }}>
+            <Typography variant="h6" gutterBottom sx={{ color: '#1a1a1a' }}>
+              Order Summary
+            </Typography>
+            <Box sx={{ my: 2 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                <Typography color="text.secondary">Subtotal</Typography>
+                <Typography sx={{ color: '#1a1a1a' }}>₹{total}</Typography>
               </Box>
-              <Button
-                variant="contained"
-                color="primary"
-                fullWidth
-                size="large"
-                onClick={() => navigate('/checkout')}
-              >
-                Proceed to Checkout
-              </Button>
-            </CardContent>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+                <Typography color="text.secondary">Shipping</Typography>
+                <Typography sx={{ color: '#1a1a1a' }}>Free</Typography>
+              </Box>
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 3 }}>
+              <Typography variant="h6" sx={{ color: '#1a1a1a' }}>Total</Typography>
+              <Typography variant="h6" sx={{ color: '#2e7d32' }}>₹{total}</Typography>
+            </Box>
+            <Button
+              fullWidth
+              variant="contained"
+              size="large"
+              onClick={handleCheckout}
+              sx={{
+                backgroundColor: '#2e7d32',
+                '&:hover': {
+                  backgroundColor: '#1b5e20',
+                },
+                borderRadius: '8px',
+                py: 1.5,
+              }}
+            >
+              Proceed to Checkout
+            </Button>
           </Card>
         </Grid>
       </Grid>

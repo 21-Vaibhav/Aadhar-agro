@@ -1,44 +1,47 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ThemeProvider, createTheme, CssBaseline, Box } from '@mui/material';
-import Navbar from './components/Navbar';
-import Footer from './components/Footer';
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Cart from './pages/Cart';
-import Products from './pages/Products';
-import ProductDetail from './pages/ProductDetail';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { ThemeProvider, createTheme, CssBaseline, Box } from "@mui/material";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import Home from "./pages/Home";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Cart from "./pages/Cart";
+import Products from "./pages/Products";
+import ProductDetail from "./pages/ProductDetail";
+import Checkout from "./pages/Checkout";
+import OrderSuccess from "./pages/OrderSuccess";
 import { Analytics } from "@vercel/analytics/react";
+import { CartProvider } from "./context/CartContext";
 
 // Create theme
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#2e7d32', // Green color
-      light: '#60ad5e',
-      dark: '#005005',
+      main: "#2e7d32", // Green color
+      light: "#60ad5e",
+      dark: "#005005",
     },
     secondary: {
-      main: '#ffd700', // Gold color
-      light: '#ffff52',
-      dark: '#c7a600',
+      main: "#ffd700", // Gold color
+      light: "#ffff52",
+      dark: "#c7a600",
     },
     background: {
-      default: '#fafafa',
+      default: "#fafafa",
     },
   },
   typography: {
     fontFamily: [
-      'Inter',
-      '-apple-system',
-      'BlinkMacSystemFont',
+      "Inter",
+      "-apple-system",
+      "BlinkMacSystemFont",
       '"Segoe UI"',
-      'Roboto',
+      "Roboto",
       '"Helvetica Neue"',
-      'Arial',
-      'sans-serif',
-    ].join(','),
+      "Arial",
+      "sans-serif",
+    ].join(","),
     h1: {
       fontWeight: 700,
     },
@@ -62,13 +65,13 @@ const theme = createTheme({
     MuiButton: {
       styleOverrides: {
         root: {
-          textTransform: 'none',
+          textTransform: "none",
           borderRadius: 8,
         },
         contained: {
-          boxShadow: 'none',
-          '&:hover': {
-            boxShadow: 'none',
+          boxShadow: "none",
+          "&:hover": {
+            boxShadow: "none",
           },
         },
       },
@@ -77,7 +80,7 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 12,
-          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
         },
       },
     },
@@ -88,30 +91,36 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Router>
-        <Box sx={{ 
-          display: 'flex', 
-          flexDirection: 'column',
-          minHeight: '100vh',
-          bgcolor: 'background.default'
-        }}>
-          <Navbar />
-          <Box component="main" sx={{ flexGrow: 1 }}>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/products" element={<Products />} />
-              <Route path="/products/:id" element={<ProductDetail />} />
-              <Route path="/categories" element={<Products />} />
-              <Route path="/about" element={<div>About Page</div>} />
-              <Route path="/contact" element={<div>Contact Page</div>} />
-            </Routes>
+      <CartProvider>
+        <Router>
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              minHeight: "100vh",
+              bgcolor: "background.default",
+            }}
+          >
+            <Navbar />
+            <Box component="main" sx={{ flex: 1 }}>
+              <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Register />} />
+                <Route path="/cart" element={<Cart />} />
+                <Route path="/checkout" element={<Checkout />} />
+                <Route path="/order-success" element={<OrderSuccess />} />
+                <Route path="/products" element={<Products />} />
+                <Route path="/products/:id" element={<ProductDetail />} />
+                <Route path="/categories" element={<Products />} />
+                <Route path="/about" element={<div>About Page</div>} />
+                <Route path="/contact" element={<div>Contact Page</div>} />
+              </Routes>
+            </Box>
+            <Footer />
           </Box>
-          <Footer />
-        </Box>
-      </Router>
+        </Router>
+      </CartProvider>
       <Analytics />
     </ThemeProvider>
   );
