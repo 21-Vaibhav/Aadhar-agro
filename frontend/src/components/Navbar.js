@@ -65,13 +65,16 @@ const NavButton = styled(Button)(({ theme }) => ({
 }));
 
 const MenuButton = styled(IconButton)(({ theme }) => ({
+  marginRight: theme.spacing(1),
   padding: '8px',
-  marginRight: theme.spacing(2),
+  [theme.breakpoints.up('sm')]: {
+    marginRight: theme.spacing(2),
+  },
   '& .line': {
-    width: '24px',
+    width: '20px',
     height: '2px',
     backgroundColor: theme.palette.primary.main,
-    margin: '4px 0',
+    margin: '3px 0',
     transition: 'all 0.3s ease',
     display: 'block',
   },
@@ -88,10 +91,23 @@ const menuItems = [
 const DrawerHeader = styled('div')(({ theme }) => ({
   display: 'flex',
   alignItems: 'center',
-  padding: theme.spacing(2),
   justifyContent: 'space-between',
+  padding: theme.spacing(2),
   backgroundColor: theme.palette.primary.main,
-  color: 'white',
+  '& .logo-container': {
+    height: '40px',
+    display: 'flex',
+    alignItems: 'center',
+    '& img': {
+      height: '100%',
+      width: 'auto',
+      objectFit: 'contain',
+      filter: 'brightness(0) invert(1)', // Makes the logo white
+    },
+  },
+  '& .close-button': {
+    color: 'white',
+  },
 }));
 
 const Navbar = () => {
@@ -128,18 +144,13 @@ const Navbar = () => {
   const drawer = (
     <Box sx={{ width: 280 }}>
       <DrawerHeader>
-        <Typography variant="h6" component="div">
-          AADHAR AGRO
-        </Typography>
+        <Box className="logo-container">
+          <img src={require('../images/aadhaar logo.png')} alt="Aadhar Agro Logo" />
+        </Box>
         <IconButton 
-          color="inherit" 
+          className="close-button"
           onClick={handleDrawerToggle}
-          sx={{ 
-            '&:hover': { 
-              color: 'white',
-              backgroundColor: 'rgba(255,255,255,0.1)' 
-            }
-          }}
+          size="small"
         >
           <CloseIcon />
         </IconButton>
@@ -285,8 +296,14 @@ const Navbar = () => {
         </Container>
       </TopBar>
       <StyledAppBar position="sticky">
-        <Container>
-          <Toolbar disableGutters sx={{ py: 1 }}>
+        <Container maxWidth="lg">
+          <Toolbar 
+            disableGutters 
+            sx={{ 
+              py: { xs: 0.5, sm: 1 },
+              gap: { xs: 1, sm: 2 },
+            }}
+          >
             {/* Mobile Menu Icon */}
             {isMobile && (
               <MenuButton
@@ -309,21 +326,29 @@ const Navbar = () => {
                 alignItems: 'center',
                 flexGrow: { xs: 1, md: 0 },
                 justifyContent: 'space-between',
+                mr: { md: 4 },
               }}
             >
-              <Typography
-                variant="h6"
-                noWrap
+              <Box
                 component={RouterLink}
                 to="/"
                 sx={{
-                  fontWeight: 700,
-                  color: 'primary.main',
+                  display: 'flex',
+                  alignItems: 'center',
                   textDecoration: 'none',
+                  height: { xs: '40px', sm: '45px', md: '50px' },
                 }}
               >
-                AADHAR AGRO
-              </Typography>
+                <img
+                  src={require('../images/aadhaar logo.png')}
+                  alt="Aadhar Agro Logo"
+                  style={{
+                    height: '100%',
+                    width: 'auto',
+                    objectFit: 'contain',
+                  }}
+                />
+              </Box>
 
               {/* Mobile User Name */}
               {isMobile && user && (
