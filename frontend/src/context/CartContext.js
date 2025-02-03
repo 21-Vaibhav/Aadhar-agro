@@ -1,5 +1,6 @@
 // src/contexts/CartContext.js
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 
 const CartContext = createContext();
 
@@ -12,6 +13,20 @@ export const CartProvider = ({ children }) => {
   });
   
   const [total, setTotal] = useState(0);
+
+  // Add auth state tracking
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        // Clear cart when user signs out
+        setCartItems([]);
+        localStorage.removeItem(CART_STORAGE_KEY);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
 
   useEffect(() => {
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartItems));

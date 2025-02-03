@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link as RouterLink, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Link as RouterLink, useNavigate, useLocation } from 'react-router-dom';
 import {
   Container,
   Box,
@@ -24,6 +24,7 @@ import { auth } from '../firebase';
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -32,6 +33,13 @@ const Login = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    // Show message if redirected from checkout
+    if (location.state?.message) {
+      setError(location.state.message);
+    }
+  }, [location]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -52,30 +60,16 @@ const Login = () => {
     setLoading(true);
 
     try {
-      const { email, password } = formData;
-      await signInWithEmailAndPassword(auth, email, password);
+      await signInWithEmailAndPassword(auth, formData.email, formData.password);
       setSuccess(true);
-      setTimeout(() => {
-        navigate('/'); // Redirect to home page after successful login
-      }, 1500); // Redirect after showing success message for 1.5 seconds
-    } catch (err) {
-      console.error('Login error:', err);
-      switch (err.code) {
-        case 'auth/invalid-email':
-          setError('Invalid email address.');
-          break;
-        case 'auth/user-disabled':
-          setError('This account has been disabled.');
-          break;
-        case 'auth/user-not-found':
-          setError('No account found with this email.');
-          break;
-        case 'auth/wrong-password':
-          setError('Incorrect password.');
-          break;
-        default:
-          setError('Failed to log in. Please try again.');
+      // Redirect back to checkout if that's where user came from
+      if (location.state?.from) {
+        navigate(location.state.from);
+      } else {
+        navigate('/');
       }
+    } catch (error) {
+      setError(error.message);
     } finally {
       setLoading(false);
     }

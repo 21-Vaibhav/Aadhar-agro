@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -20,7 +20,7 @@ import {
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useCart } from '../context/CartContext';
-import { getAuth } from 'firebase/auth';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase';
 
@@ -49,6 +49,29 @@ const Checkout = () => {
   const auth = getAuth();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Add authentication check
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        navigate('/login', { 
+          state: { 
+            from: '/checkout',
+            message: 'Please sign in to complete your purchase' 
+          } 
+        });
+      }
+    });
+
+    return () => unsubscribe();
+  }, [navigate]);
+
+  // Redirect if cart is empty
+  useEffect(() => {
+    if (cartItems.length === 0) {
+      navigate('/cart');
+    }
+  }, [cartItems, navigate]);
 
   const [shippingAddress, setShippingAddress] = useState({
     street: '',
@@ -147,11 +170,6 @@ const Checkout = () => {
       setLoading(false);
     }
   };
-
-  if (cartItems.length === 0) {
-    navigate('/cart');
-    return null;
-  }
 
   return (
     <Container sx={{ py: 4 }}>
