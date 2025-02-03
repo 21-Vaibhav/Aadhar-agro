@@ -9,10 +9,15 @@ import {
   MenuItem,
   TextField,
   Pagination,
+  Slider,
+  Typography,
+  InputAdornment,
 } from '@mui/material';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import ProductCard from '../components/ProductCard';
+import SearchIcon from '@mui/icons-material/Search';
+import Fuse from 'fuse.js';
 
 const Products = () => {
   const [products, setProducts] = useState([]);
@@ -20,7 +25,23 @@ const Products = () => {
   const [category, setCategory] = useState('all');
   const [sortBy, setSortBy] = useState('featured');
   const [page, setPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [priceRange, setPriceRange] = useState([0, 10000]);
+  const [categories, setCategories] = useState(['all']);
+  const [fuse, setFuse] = useState(null);
   const productsPerPage = 12;
+
+  // Initialize Fuse.js for fuzzy search
+  useEffect(() => {
+    if (products.length > 0) {
+      const fuseOptions = {
+        keys: ['name', 'description'],
+        threshold: 0.3,
+        distance: 100
+      };
+      setFuse(new Fuse(products, fuseOptions));
+    }
+  }, [products]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -31,6 +52,14 @@ const Products = () => {
           id: doc.id,
           ...doc.data()
         }));
+        
+        // Extract unique categories and price range, filter out undefined/null values
+        const uniqueCategories = ['all', ...new Set(productsList.map(p => p.Category).filter(Boolean))];
+        const prices = productsList.map(p => p.price || 0);
+        const maxPrice = Math.max(...prices);
+        
+        setCategories(uniqueCategories);
+        setPriceRange([0, maxPrice || 10000]);
         setProducts(productsList);
         setLoading(false);
       } catch (error) {
@@ -57,23 +86,54 @@ const Products = () => {
     window.scrollTo(0, 0);
   };
 
+  const handlePriceChange = (event, newValue) => {
+    setPriceRange(newValue);
+    setPage(1);
+  };
+
+  const handleSearchChange = (event) => {
+    setSearchQuery(event.target.value);
+    setPage(1);
+  };
+
   // Filter and sort products
-  const filteredProducts = products
-    .filter(product => category === 'all' ? true : product.category === category)
-    .sort((a, b) => {
+  const getFilteredProducts = () => {
+    let filtered = [...products];
+
+    // Apply search if query exists
+    if (searchQuery && fuse) {
+      const searchResults = fuse.search(searchQuery);
+      filtered = searchResults.map(result => result.item);
+    }
+
+    // Apply category filter
+    if (category !== 'all') {
+      filtered = filtered.filter(product => product.Category && product.Category === category);
+    }
+
+    // Apply price filter
+    filtered = filtered.filter(product => 
+      product.price && product.price >= priceRange[0] && product.price <= priceRange[1]
+    );
+
+    // Apply sorting
+    filtered.sort((a, b) => {
       switch (sortBy) {
         case 'price-low':
-          return a.price - b.price;
+          return (a.price || 0) - (b.price || 0);
         case 'price-high':
-          return b.price - a.price;
+          return (b.price || 0) - (a.price || 0);
         case 'name':
-          return a.name.localeCompare(b.name);
+          return (a.name || '').localeCompare(b.name || '');
         default:
           return 0;
       }
     });
 
-  // Pagination
+    return filtered;
+  };
+
+  const filteredProducts = getFilteredProducts();
   const pageCount = Math.ceil(filteredProducts.length / productsPerPage);
   const displayedProducts = filteredProducts.slice(
     (page - 1) * productsPerPage,
@@ -85,7 +145,7 @@ const Products = () => {
       {/* Filters */}
       <Box sx={{ mb: 4 }}>
         <Grid container spacing={2}>
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={6} md={3}>
             <FormControl fullWidth>
               <InputLabel sx={{ 
                 backgroundColor: 'background.paper',
@@ -95,15 +155,15 @@ const Products = () => {
                 Category
               </InputLabel>
               <Select value={category} onChange={handleCategoryChange}>
-                <MenuItem value="all">All Categories</MenuItem>
-                <MenuItem value="seeds">Seeds</MenuItem>
-                <MenuItem value="fertilizers">Fertilizers</MenuItem>
-                <MenuItem value="pesticides">Pesticides</MenuItem>
-                <MenuItem value="tools">Tools</MenuItem>
+                {categories.map((cat) => (
+                  <MenuItem key={cat} value={cat}>
+                    {cat === 'all' ? 'All Categories' : cat.charAt(0).toUpperCase() + cat.slice(1)}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} sm={6} md={3}>
             <FormControl fullWidth>
               <InputLabel sx={{ 
                 backgroundColor: 'background.paper',
@@ -120,12 +180,36 @@ const Products = () => {
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={12} sm={4}>
+          <Grid item xs={12} md={3}>
             <TextField
               fullWidth
               label="Search Products"
               variant="outlined"
+              value={searchQuery}
+              onChange={handleSearchChange}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+              }}
             />
+          </Grid>
+          <Grid item xs={12} md={3}>
+            <Typography gutterBottom>Price Range</Typography>
+            <Slider
+              value={priceRange}
+              onChange={handlePriceChange}
+              valueLabelDisplay="auto"
+              min={0}
+              max={Math.max(...products.map(p => p.price))}
+              valueLabelFormat={(value) => `₹${value}`}
+            />
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
+              <Typography variant="body2">₹{priceRange[0]}</Typography>
+              <Typography variant="body2">₹{priceRange[1]}</Typography>
+            </Box>
           </Grid>
         </Grid>
       </Box>
