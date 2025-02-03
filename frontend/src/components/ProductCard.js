@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {
   Card,
   CardMedia,
-  CardContent,
   Typography,
   Button,
   Box,
@@ -14,26 +13,21 @@ import RemoveIcon from '@mui/icons-material/Remove';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '../context/CartContext';
 
-const StyledCard = styled(Card)({
+const StyledCard = styled(Card)(({ theme }) => ({
   height: '100%',
   display: 'flex',
   flexDirection: 'column',
-  borderRadius: '16px',
-  overflow: 'hidden',
-  backgroundColor: '#fff',
-  position: 'relative',
-  boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-  transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+  transition: 'transform 0.2s ease, box-shadow 0.2s ease',
   '&:hover': {
     transform: 'translateY(-4px)',
-    boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
+    boxShadow: '0 4px 12px rgba(0,0,0,0.12)',
   },
-});
+}));
 
 const ImageContainer = styled(Box)({
   position: 'relative',
   width: '100%',
-  paddingTop: '80%', // Reduced from 100% to 80% for less vertical space
+  paddingTop: '80%',
   backgroundColor: '#fff',
 });
 
@@ -44,75 +38,111 @@ const ProductImage = styled(CardMedia)({
   width: '100%',
   height: '100%',
   objectFit: 'contain',
-  padding: '12px', // Reduced from 20px
+  padding: '12px',
 });
 
-const ContentWrapper = styled(CardContent)({
-  padding: '12px', // Reduced from 16px
-  flex: 1,
+const ContentWrapper = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
-  gap: '8px', // Reduced from 12px
-});
+  flexGrow: 1,
+  padding: theme.spacing(2),
+  [theme.breakpoints.down('sm')]: {
+    padding: theme.spacing(1.5),
+  },
+}));
 
 const ProductTitle = styled(Typography)(({ theme }) => ({
-  fontSize: '1.25rem',
   fontFamily: theme.typography.h6.fontFamily,
   fontWeight: 600,
+  fontSize: '1.125rem',
+  lineHeight: 1.3,
   marginBottom: theme.spacing(1),
-  color: theme.palette.text.primary,
   display: '-webkit-box',
   WebkitLineClamp: 2,
   WebkitBoxOrient: 'vertical',
   overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  lineHeight: 1.3,
-  height: '2.6em',
+  [theme.breakpoints.down('sm')]: {
+    fontSize: '1rem',
+    marginBottom: theme.spacing(0.5),
+  },
 }));
 
 const ProductDescription = styled(Typography)(({ theme }) => ({
   color: theme.palette.text.secondary,
-  marginBottom: theme.spacing(2),
+  fontSize: '0.875rem',
+  lineHeight: 1.5,
+  marginBottom: theme.spacing(1.5),
   display: '-webkit-box',
-  WebkitLineClamp: 3,
+  WebkitLineClamp: 2,
   WebkitBoxOrient: 'vertical',
   overflow: 'hidden',
-  lineHeight: 1.5,
-  height: '4.5em',
-}));
-
-const ProductPrice = styled(Typography)(({ theme }) => ({
-  fontSize: '1.5rem',
-  fontFamily: theme.typography.h5.fontFamily,
-  fontWeight: 600,
-  color: theme.palette.primary.main,
-  marginBottom: theme.spacing(1),
+  [theme.breakpoints.down('sm')]: {
+    fontSize: '0.8125rem',
+    marginBottom: theme.spacing(1),
+  },
 }));
 
 const CategoryLabel = styled(Typography)(({ theme }) => ({
   color: theme.palette.primary.main,
-  fontSize: '0.875rem',
-  fontWeight: 500,
-  marginBottom: theme.spacing(1),
+  fontSize: '0.75rem',
+  fontWeight: 600,
+  marginBottom: theme.spacing(0.5),
   textTransform: 'uppercase',
   letterSpacing: '0.5px',
 }));
 
-const SizeButtonsContainer = styled(Box)({
+const PriceContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
-  gap: '4px', // Reduced from 6px
-  flexWrap: 'wrap',
-  marginBottom: '4px',
-});
+  alignItems: 'baseline',
+  gap: theme.spacing(1),
+  marginBottom: theme.spacing(1.5),
+  [theme.breakpoints.down('sm')]: {
+    marginBottom: theme.spacing(1),
+  },
+}));
+
+const ProductPrice = styled(Typography)(({ theme }) => ({
+  fontFamily: theme.typography.h6.fontFamily,
+  fontSize: '1.25rem',
+  fontWeight: 700,
+  color: theme.palette.primary.main,
+  [theme.breakpoints.down('sm')]: {
+    fontSize: '1.125rem',
+  },
+}));
+
+const DiscountPrice = styled(Typography)(({ theme }) => ({
+  fontSize: '0.875rem',
+  color: theme.palette.text.secondary,
+  textDecoration: 'line-through',
+  [theme.breakpoints.down('sm')]: {
+    fontSize: '0.8125rem',
+  },
+}));
+
+const SizeButtonsContainer = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  gap: theme.spacing(1),
+  marginBottom: theme.spacing(2),
+  [theme.breakpoints.down('sm')]: {
+    marginBottom: theme.spacing(1.5),
+  },
+}));
+
+const ActionButtons = styled(Box)(({ theme }) => ({
+  display: 'flex',
+  gap: theme.spacing(1),
+  marginTop: 'auto',
+}));
 
 const SizeButton = styled(Button)(({ selected }) => ({
-  minWidth: '64px', // Reduced from 72px
-  padding: '4px 10px', // Reduced from 6px 12px
+  minWidth: '64px',
+  padding: '4px 10px',
   borderRadius: '6px',
   border: '2px solid #2e7d32',
   backgroundColor: selected ? '#2e7d32' : 'transparent',
   color: selected ? '#fff' : '#2e7d32',
-  fontSize: '0.813rem', // Reduced from 0.875rem
+  fontSize: '0.813rem',
   fontWeight: 600,
   '&:hover': {
     backgroundColor: selected ? '#1b5e20' : 'rgba(46, 125, 50, 0.1)',
@@ -126,7 +156,7 @@ const SizeButton = styled(Button)(({ selected }) => ({
 const QuantityControl = styled(Box)({
   display: 'flex',
   alignItems: 'center',
-  gap: '4px', // Reduced from 6px
+  gap: '4px',
   border: '1px solid #ddd',
   borderRadius: '6px',
   padding: '2px',
@@ -134,7 +164,7 @@ const QuantityControl = styled(Box)({
 });
 
 const QuantityButton = styled(IconButton)({
-  padding: '2px', // Reduced from 4px
+  padding: '2px',
   color: '#2e7d32',
   '&:hover': {
     backgroundColor: 'rgba(46, 125, 50, 0.1)',
@@ -142,24 +172,18 @@ const QuantityButton = styled(IconButton)({
 });
 
 const QuantityText = styled(Typography)({
-  minWidth: '32px', // Reduced from 36px
+  minWidth: '32px',
   textAlign: 'center',
   fontWeight: 600,
 });
 
-const ActionButtons = styled(Box)({
-  display: 'flex',
-  gap: '6px', // Reduced from 8px
-  marginTop: '8px',
-});
-
 const ActionButton = styled(Button)(({ variant }) => ({
   flex: 1,
-  padding: '8px', // Reduced from 10px
+  padding: '8px',
   borderRadius: '6px',
   textTransform: 'none',
   fontWeight: 600,
-  fontSize: '0.875rem', // Reduced from 0.9375rem
+  fontSize: '0.875rem',
   ...(variant === 'contained' ? {
     backgroundColor: '#2e7d32',
     color: '#fff',
@@ -175,6 +199,8 @@ const ActionButton = styled(Button)(({ variant }) => ({
     },
   }),
 }));
+
+const defaultDescription = "High-quality agricultural product designed to enhance crop yield and farm productivity. Contact us for detailed specifications and usage guidelines.";
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate();
@@ -233,42 +259,40 @@ const ProductCard = ({ product }) => {
       <ImageContainer>
         <ProductImage
           component="img"
-          image={product.images?.[0] || '/placeholder-image.jpg'}
+          image={product.images[0] || '/placeholder-image.jpg'}
           alt={product.name}
         />
       </ImageContainer>
       <ContentWrapper>
-        <Box sx={{ p: 2 }}>
-          <CategoryLabel variant="subtitle2">
-            {product.Category || 'Uncategorized'}
-          </CategoryLabel>
-          <ProductTitle variant="h6">
-            {product.name}
-          </ProductTitle>
-          <ProductDescription variant="body2">
-            {product.description}
-          </ProductDescription>
-          <ProductPrice variant="h5">
+        <CategoryLabel>
+          {product.Category || 'General'}
+        </CategoryLabel>
+        <ProductTitle>
+          {product.name}
+        </ProductTitle>
+        <ProductDescription>
+          {product.description || defaultDescription}
+        </ProductDescription>
+        <PriceContainer>
+          <ProductPrice>
             ₹{calculateDiscountedPrice()}
-            {product.discount > 0 && (
-              <Typography
-                component="span"
-                sx={{
-                  textDecoration: 'line-through',
-                  color: 'text.secondary',
-                  fontSize: '1rem',
-                  ml: 1,
-                  fontWeight: 400,
-                }}
-              >
-                ₹{Math.round(product.price * (1 + product.discount / 100))}
-              </Typography>
-            )}
           </ProductPrice>
-        </Box>
-
-        <Box>
-          <Typography variant="subtitle2" sx={{ color: '#666', fontWeight: 600, mb: 0.5, fontSize: '0.875rem' }}>
+          {product.discount > 0 && (
+            <DiscountPrice>
+              ₹{product.price}
+            </DiscountPrice>
+          )}
+        </PriceContainer>
+        
+        <Box sx={{ mb: { xs: 1, sm: 1.5 } }}>
+          <Typography 
+            variant="subtitle2" 
+            sx={{ 
+              color: 'text.secondary',
+              mb: 0.5,
+              fontSize: { xs: '0.75rem', sm: '0.875rem' }
+            }}
+          >
             Select Size
           </Typography>
           <SizeButtonsContainer>
@@ -284,8 +308,15 @@ const ProductCard = ({ product }) => {
           </SizeButtonsContainer>
         </Box>
 
-        <Box>
-          <Typography variant="subtitle2" sx={{ color: '#666', fontWeight: 600, mb: 0.5, fontSize: '0.875rem' }}>
+        <Box sx={{ mb: { xs: 1, sm: 1.5 } }}>
+          <Typography 
+            variant="subtitle2" 
+            sx={{ 
+              color: 'text.secondary',
+              mb: 0.5,
+              fontSize: { xs: '0.75rem', sm: '0.875rem' }
+            }}
+          >
             Quantity
           </Typography>
           <QuantityControl>
@@ -307,6 +338,7 @@ const ProductCard = ({ product }) => {
             variant="contained"
             onClick={handleAddToCart}
             disabled={!selectedSize || addingToCart}
+            fullWidth
           >
             {addingToCart ? 'Added!' : 'Add to Cart'}
           </ActionButton>
@@ -314,6 +346,7 @@ const ProductCard = ({ product }) => {
             variant="outlined"
             onClick={handleBuyNow}
             disabled={!selectedSize}
+            fullWidth
           >
             Buy Now
           </ActionButton>
