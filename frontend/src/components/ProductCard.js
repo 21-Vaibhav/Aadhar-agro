@@ -295,18 +295,18 @@ const ProductCard = ({ product }) => {
 
         <ActionButtons>
           <ActionButton
-            variant="outlined"
-            onClick={handleBuyNow}
-            disabled={!selectedSize}
-          >
-            Buy Now
-          </ActionButton>
-          <ActionButton
             variant="contained"
             onClick={handleAddToCart}
             disabled={!selectedSize || addingToCart}
           >
             {addingToCart ? 'Added!' : 'Add to Cart'}
+          </ActionButton>
+          <ActionButton
+            variant="outlined"
+            onClick={handleBuyNow}
+            disabled={!selectedSize}
+          >
+            Buy Now
           </ActionButton>
         </ActionButtons>
       </ContentWrapper>
