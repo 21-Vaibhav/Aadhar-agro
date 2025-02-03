@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { ThemeProvider, createTheme, CssBaseline, Box } from "@mui/material";
+import { ThemeProvider, CssBaseline, Box } from "@mui/material";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
@@ -13,79 +13,7 @@ import Checkout from "./pages/Checkout";
 import OrderSuccess from "./pages/OrderSuccess";
 import { Analytics } from "@vercel/analytics/react";
 import { CartProvider } from "./context/CartContext";
-
-// Create theme
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: "#2e7d32", // Green color
-      light: "#60ad5e",
-      dark: "#005005",
-    },
-    secondary: {
-      main: "#ffd700", // Gold color
-      light: "#ffff52",
-      dark: "#c7a600",
-    },
-    background: {
-      default: "#fafafa",
-    },
-  },
-  typography: {
-    fontFamily: [
-      "Inter",
-      "-apple-system",
-      "BlinkMacSystemFont",
-      '"Segoe UI"',
-      "Roboto",
-      '"Helvetica Neue"',
-      "Arial",
-      "sans-serif",
-    ].join(","),
-    h1: {
-      fontWeight: 700,
-    },
-    h2: {
-      fontWeight: 600,
-    },
-    h3: {
-      fontWeight: 600,
-    },
-    h4: {
-      fontWeight: 600,
-    },
-    h5: {
-      fontWeight: 500,
-    },
-    h6: {
-      fontWeight: 500,
-    },
-  },
-  components: {
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          textTransform: "none",
-          borderRadius: 8,
-        },
-        contained: {
-          boxShadow: "none",
-          "&:hover": {
-            boxShadow: "none",
-          },
-        },
-      },
-    },
-    MuiCard: {
-      styleOverrides: {
-        root: {
-          borderRadius: 12,
-          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-        },
-      },
-    },
-  },
-});
+import theme from './theme';
 
 function App() {
   return (
@@ -112,9 +40,6 @@ function App() {
                 <Route path="/order-success" element={<OrderSuccess />} />
                 <Route path="/products" element={<Products />} />
                 <Route path="/products/:id" element={<ProductDetail />} />
-                <Route path="/categories" element={<Products />} />
-                <Route path="/about" element={<div>About Page</div>} />
-                <Route path="/contact" element={<div>Contact Page</div>} />
               </Routes>
             </Box>
             <Footer />

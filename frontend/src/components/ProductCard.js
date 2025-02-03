@@ -55,52 +55,48 @@ const ContentWrapper = styled(CardContent)({
   gap: '8px', // Reduced from 12px
 });
 
-const ProductName = styled(Typography)({
-  fontSize: '1.25rem', // Reduced from 1.5rem
-  fontWeight: 700,
-  color: '#1a1a1a',
-  lineHeight: 1.2,
-  marginBottom: 0,
+const ProductTitle = styled(Typography)(({ theme }) => ({
+  fontSize: '1.25rem',
+  fontFamily: theme.typography.h6.fontFamily,
+  fontWeight: 600,
+  marginBottom: theme.spacing(1),
+  color: theme.palette.text.primary,
   display: '-webkit-box',
   WebkitLineClamp: 2,
   WebkitBoxOrient: 'vertical',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
-  minHeight: '3rem', // Reduced from 3.6rem
-});
+  lineHeight: 1.3,
+  height: '2.6em',
+}));
 
-const ProductDescription = styled(Typography)({
+const ProductDescription = styled(Typography)(({ theme }) => ({
+  color: theme.palette.text.secondary,
+  marginBottom: theme.spacing(2),
+  display: '-webkit-box',
+  WebkitLineClamp: 3,
+  WebkitBoxOrient: 'vertical',
+  overflow: 'hidden',
+  lineHeight: 1.5,
+  height: '4.5em',
+}));
+
+const ProductPrice = styled(Typography)(({ theme }) => ({
+  fontSize: '1.5rem',
+  fontFamily: theme.typography.h5.fontFamily,
+  fontWeight: 600,
+  color: theme.palette.primary.main,
+  marginBottom: theme.spacing(1),
+}));
+
+const CategoryLabel = styled(Typography)(({ theme }) => ({
+  color: theme.palette.primary.main,
   fontSize: '0.875rem',
-  color: '#666',
-  marginBottom: '4px', // Reduced from 8px
-  lineHeight: 1.3, // Reduced from 1.4
-  display: '-webkit-box',
-  WebkitLineClamp: 2,
-  WebkitBoxOrient: 'vertical',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  minHeight: '2.3rem', // Reduced from 2.8rem
-});
-
-const PriceWrapper = styled(Box)({
-  display: 'flex',
-  alignItems: 'center',
-  gap: '6px', // Reduced from 8px
-});
-
-const CurrentPrice = styled(Typography)({
-  fontSize: '1.5rem', // Reduced from 1.75rem
-  fontWeight: 700,
-  color: '#1a1a1a',
-  lineHeight: 1,
-});
-
-const OriginalPrice = styled(Typography)({
-  fontSize: '1rem', // Reduced from 1.1rem
-  color: '#999',
-  textDecoration: 'line-through',
-  lineHeight: 1,
-});
+  fontWeight: 500,
+  marginBottom: theme.spacing(1),
+  textTransform: 'uppercase',
+  letterSpacing: '0.5px',
+}));
 
 const SizeButtonsContainer = styled(Box)({
   display: 'flex',
@@ -242,23 +238,36 @@ const ProductCard = ({ product }) => {
         />
       </ImageContainer>
       <ContentWrapper>
-        <Box>
-          <ProductName variant="h1">
+        <Box sx={{ p: 2 }}>
+          <CategoryLabel variant="subtitle2">
+            {product.Category || 'Uncategorized'}
+          </CategoryLabel>
+          <ProductTitle variant="h6">
             {product.name}
-          </ProductName>
-          <ProductDescription>
-            {product.description || 'Boosts plant growth and yields with key nutrients.'}
+          </ProductTitle>
+          <ProductDescription variant="body2">
+            {product.description}
           </ProductDescription>
+          <ProductPrice variant="h5">
+            ₹{calculateDiscountedPrice()}
+            {product.discount > 0 && (
+              <Typography
+                component="span"
+                sx={{
+                  textDecoration: 'line-through',
+                  color: 'text.secondary',
+                  fontSize: '1rem',
+                  ml: 1,
+                  fontWeight: 400,
+                }}
+              >
+                ₹{Math.round(product.price * (1 + product.discount / 100))}
+              </Typography>
+            )}
+          </ProductPrice>
         </Box>
 
         <Box>
-          <PriceWrapper>
-            <CurrentPrice>₹{calculateDiscountedPrice()}</CurrentPrice>
-            {product.discount > 0 && (
-              <OriginalPrice>₹{product.price}</OriginalPrice>
-            )}
-          </PriceWrapper>
-          
           <Typography variant="subtitle2" sx={{ color: '#666', fontWeight: 600, mb: 0.5, fontSize: '0.875rem' }}>
             Select Size
           </Typography>
