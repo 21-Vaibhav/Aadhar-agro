@@ -135,6 +135,13 @@ const Home = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
+  const scrollToStory = () => {
+    const element = document.getElementById('our-story');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <Box>
       {/* Hero Section */}
@@ -207,6 +214,7 @@ const Home = () => {
                       color="primary"
                       size={isMobile ? "medium" : "large"}
                       sx={{ mr: 2 }}
+                      onClick={scrollToStory}
                     >
                       Discover More
                     </Button>
@@ -253,7 +261,7 @@ const Home = () => {
       </Container>
 
       {/* About Section */}
-      <Box sx={{ bgcolor: '#f8f9fa', py: { xs: 4, md: 8 } }}>
+      <Box id="our-story" sx={{ bgcolor: '#f8f9fa', py: { xs: 4, md: 8 } }}>
         <Container>
           <Grid container spacing={{ xs: 3, md: 6 }} alignItems="center">
             <Grid item xs={12} md={6}>
@@ -277,28 +285,35 @@ const Home = () => {
                   fontSize: { xs: '1rem', md: '1.25rem' }
                 }}
               >
-                Our Introduction
+                Our Story
               </Typography>
               <Typography 
                 variant="h3" 
                 sx={{ 
                   mb: 3,
-                  fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' }
+                  fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' },
+                  lineHeight: 1.2
                 }}
               >
-
-              Fertilizers & Growth Solutions
-              <br />
-              Nurturing Soil, Growing Prosperity
+                Fertilizers & Growth Solutions
+                <br />
+                Nurturing Soil, Growing Prosperity
               </Typography>
               <Typography 
                 color="text.secondary" 
                 sx={{ 
                   mb: 4,
-                  fontSize: { xs: '0.875rem', md: '1rem' }
+                  fontSize: { xs: '0.875rem', md: '1rem' },
+                  lineHeight: 1.8,
+                  textAlign: 'justify',
+                  whiteSpace: 'pre-line'
                 }}
               >
-              Aadhar Agro is your trusted one-stop store for high-quality fertilizers, offering sustainable solutions to boost crop yields and support farmers in achieving prosperous harvests.
+                Aadhar Agro Chemicals LLP: A decade of empowering Indian farmers with superior-quality, scientifically advanced agricultural solutions for higher yields, healthier crops, and increased profitability.
+
+                Rooted in Expertise, Driven by Innovation
+
+                Our foundation is built on the extensive experience of our team – seasoned professionals with a deep understanding of the agricultural landscape. This expertise fuels our mission: to provide globally benchmarked products that deliver consistent, reliable performance in the field. We offer tailored solutions designed to meet the specific demands of Indian agriculture.
               </Typography>
               <Button
                 variant="contained"
