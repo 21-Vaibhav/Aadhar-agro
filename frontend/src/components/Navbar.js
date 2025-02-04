@@ -94,19 +94,21 @@ const DrawerHeader = styled('div')(({ theme }) => ({
   justifyContent: 'space-between',
   padding: theme.spacing(2),
   backgroundColor: theme.palette.primary.main,
+  '& .close-button': {
+    color: 'white',
+    marginRight: 'auto',
+  },
   '& .logo-container': {
-    height: '40px',
+    height: '50px',
     display: 'flex',
     alignItems: 'center',
+    marginLeft: 'auto',
     '& img': {
       height: '100%',
       width: 'auto',
       objectFit: 'contain',
       filter: 'brightness(0) invert(1)', // Makes the logo white
     },
-  },
-  '& .close-button': {
-    color: 'white',
   },
 }));
 
@@ -144,9 +146,6 @@ const Navbar = () => {
   const drawer = (
     <Box sx={{ width: 280 }}>
       <DrawerHeader>
-        <Box className="logo-container">
-          <img src={require('../images/aadhaar logo.png')} alt="Aadhar Agro Logo" />
-        </Box>
         <IconButton 
           className="close-button"
           onClick={handleDrawerToggle}
@@ -154,6 +153,9 @@ const Navbar = () => {
         >
           <CloseIcon />
         </IconButton>
+        <Box className="logo-container">
+          <img src={require('../images/aadhaar logo.png')} alt="Aadhar Agro Logo" />
+        </Box>
       </DrawerHeader>
       <Divider />
       {user && (
