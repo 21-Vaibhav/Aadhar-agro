@@ -19,6 +19,11 @@
 .env.test.local
 .env.production.local
 
+# logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+debug.log
+firebase-debug.log*
+ui-debug.log*
+firestore-debug.log*
