@@ -12,6 +12,11 @@ import {
   IconButton,
   Alert,
   CircularProgress,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Snackbar,
 } from '@mui/material';
 import {
   Visibility,
@@ -19,23 +24,24 @@ import {
   Email as EmailIcon,
   Lock as LockIcon,
 } from '@mui/icons-material';
-import { signInWithEmailAndPassword } from 'firebase/auth';
+import { signInWithEmailAndPassword, sendPasswordResetEmail, fetchSignInMethodsForEmail } from 'firebase/auth';
 import { auth } from '../firebase';
 
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [formData, setFormData] = useState({
-    email: '',
-    password: '',
-  });
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetDialogOpen, setResetDialogOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   useEffect(() => {
-    // Show message if redirected from checkout
     if (location.state?.message) {
       setError(location.state.message);
     }
@@ -43,10 +49,7 @@ const Login = () => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleClickShowPassword = () => {
@@ -62,12 +65,7 @@ const Login = () => {
     try {
       await signInWithEmailAndPassword(auth, formData.email, formData.password);
       setSuccess(true);
-      // Redirect back to checkout if that's where user came from
-      if (location.state?.from) {
-        navigate(location.state.from);
-      } else {
-        navigate('/');
-      }
+      navigate(location.state?.from || '/');
     } catch (error) {
       setError(error.message);
     } finally {
@@ -75,49 +73,71 @@ const Login = () => {
     }
   };
 
+  const handleForgotPassword = async () => {
+    if (!resetEmail) return;
+    
+    setResetLoading(true);
+    try {
+      // First check if the email exists
+      const methods = await fetchSignInMethodsForEmail(auth, resetEmail);
+      
+      if (!methods || methods.length === 0) {
+        // Email is not registered
+        setSnackbarMessage('This email is not registered. Please sign up first.');
+        setSnackbarOpen(true);
+        setResetDialogOpen(false);
+        setResetEmail('');
+        setResetLoading(false);
+        return;
+      }
+
+      // Only if email exists, try to send reset link
+      try {
+        await sendPasswordResetEmail(auth, resetEmail);
+        setSnackbarMessage('Password reset email sent! Check your inbox.');
+        setSnackbarOpen(true);
+        setResetDialogOpen(false);
+        setResetEmail('');
+      } catch (resetError) {
+        setSnackbarMessage('Failed to send reset email. Please try again.');
+        setSnackbarOpen(true);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      let errorMessage = 'An error occurred. Please try again.';
+      
+      switch (error.code) {
+        case 'auth/invalid-email':
+          errorMessage = 'Please enter a valid email address.';
+          break;
+        case 'auth/user-not-found':
+          errorMessage = 'This email is not registered. Please sign up first.';
+          break;
+        default:
+          errorMessage = 'An error occurred. Please try again.';
+      }
+      
+      setSnackbarMessage(errorMessage);
+      setSnackbarOpen(true);
+    } finally {
+      setResetLoading(false);
+    }
+  };
+
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  };
+
   return (
     <Container maxWidth="xs">
-      <Box
-        sx={{
-          mt: 8,
-          mb: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
-        <Paper
-          elevation={3}
-          sx={{
-            p: 4,
-            width: '100%',
-            borderRadius: 2,
-          }}
-        >
-          <Typography
-            component="h1"
-            variant="h5"
-            sx={{
-              mb: 3,
-              textAlign: 'center',
-              fontWeight: 600,
-              color: 'primary.main',
-            }}
-          >
+      <Box sx={{ mt: 8, mb: 8, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <Paper elevation={3} sx={{ p: 4, width: '100%', borderRadius: 2 }}>
+          <Typography component="h1" variant="h5" sx={{ mb: 3, textAlign: 'center', fontWeight: 600, color: 'primary.main' }}>
             Sign In
           </Typography>
 
-          {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
-              {error}
-            </Alert>
-          )}
-
-          {success && (
-            <Alert severity="success" sx={{ mb: 2 }}>
-              Successfully logged in! Redirecting...
-            </Alert>
-          )}
+          {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+          {success && <Alert severity="success" sx={{ mb: 2 }}>Successfully logged in! Redirecting...</Alert>}
 
           <Box component="form" onSubmit={handleSubmit}>
             <TextField
@@ -158,61 +178,49 @@ const Login = () => {
                 ),
                 endAdornment: (
                   <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={handleClickShowPassword}
-                      edge="end"
-                    >
+                    <IconButton onClick={handleClickShowPassword} edge="end">
                       {showPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
                   </InputAdornment>
                 ),
               }}
             />
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={{ mt: 3, mb: 2, py: 1.5 }}
-              disabled={loading}
-            >
-              {loading ? (
-                <CircularProgress size={24} color="inherit" />
-              ) : (
-                'Sign In'
-              )}
+            <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2, py: 1.5 }} disabled={loading}>
+              {loading ? <CircularProgress size={24} color="inherit" /> : 'Sign In'}
             </Button>
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                flexDirection: 'column',
-                gap: 1,
-              }}
-            >
-              <Link
-                component={RouterLink}
-                to="/register"
-                variant="body2"
-                color="primary"
-                sx={{ textDecoration: 'none' }}
-              >
-                Don't have an account? Sign Up
-              </Link>
-              <Link
-                component={RouterLink}
-                to="#"
-                variant="body2"
-                color="primary"
-                sx={{ textDecoration: 'none' }}
-              >
-                Forgot password?
-              </Link>
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+              <Link component={RouterLink} to="/register" variant="body2" color="primary">Don't have an account? Sign Up</Link>
+              <Link component="button" variant="body2" color="primary" onClick={() => setResetDialogOpen(true)}>Forgot password?</Link>
             </Box>
           </Box>
         </Paper>
       </Box>
+
+      <Dialog open={resetDialogOpen} onClose={() => setResetDialogOpen(false)}>
+        <DialogTitle>Reset Password</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Enter your email"
+            type="email"
+            fullWidth
+            value={resetEmail}
+            onChange={(e) => setResetEmail(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setResetDialogOpen(false)}>Cancel</Button>
+          <Button onClick={handleForgotPassword} disabled={resetLoading}>Send Reset Email</Button>
+        </DialogActions>
+      </Dialog>
+
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        message={snackbarMessage}
+      />
     </Container>
   );
 };
