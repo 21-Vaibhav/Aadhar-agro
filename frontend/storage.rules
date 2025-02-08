@@ -1,0 +1,33 @@
+rules_version = '2';
+
+// Craft rules based on your storage requirements
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+        firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    // Product images can be read by anyone but only uploaded by admins
+    match /products/{imageId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // User profile images
+    match /users/{userId}/{imageId} {
+      allow read: if true;
+      allow write: if isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // Default deny all
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
