@@ -321,7 +321,7 @@ const Navbar = () => {
               </MenuButton>
             )}
 
-            {/* Logo and User Info Container for Mobile */}
+            {/* Logo and User Info Container */}
             <Box
               sx={{
                 display: 'flex',
@@ -351,6 +351,39 @@ const Navbar = () => {
                   }}
                 />
               </Box>
+
+              {/* Mobile User Info */}
+              {isMobile && (
+                <Stack direction="row" spacing={1} alignItems="center">
+                  <IconButton
+                    component={RouterLink}
+                    to="/cart"
+                    color="primary"
+                    aria-label="cart"
+                  >
+                    <Badge badgeContent={cartCount} color="primary">
+                      <CartIcon />
+                    </Badge>
+                  </IconButton>
+                  
+                  {!user && (
+                    <Button
+                      component={RouterLink}
+                      to="/login"
+                      variant="contained"
+                      color="primary"
+                      size="small"
+                      sx={{
+                        textTransform: 'none',
+                        minWidth: 'auto',
+                        px: 2
+                      }}
+                    >
+                      Sign In
+                    </Button>
+                  )}
+                </Stack>
+              )}
 
               {/* Mobile User Name */}
               {isMobile && user && (
