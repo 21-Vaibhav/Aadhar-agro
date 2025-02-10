@@ -77,7 +77,7 @@ const ProductDetail = () => {
           id: product.id,
           name: product.name,
           price: product.price,
-          imageUrl: product.imageUrl,
+          imageUrl: product.images[0],
           quantity: quantity
         })
       });
@@ -117,7 +117,7 @@ const ProductDetail = () => {
         <Grid item xs={12} md={6}>
           <Paper elevation={2}>
             <img
-              src={product.imageUrl}
+              src={product.images[0]}
               alt={product.name}
               style={{
                 width: '100%',

@@ -218,6 +218,9 @@ const ProductCard = ({ product }) => {
     }
   }, [sizes]);
 
+  const handleUpperHalfClick = () => {
+      navigate(`/products/${product.id}`); 
+  }
   const handleQuantityChange = (delta) => {
     const newQuantity = Math.max(1, quantity + delta);
     setQuantity(newQuantity);
@@ -256,6 +259,7 @@ const ProductCard = ({ product }) => {
 
   return (
     <StyledCard>
+      <div onClick={handleUpperHalfClick} style={{ cursor: "pointer" }}>
       <ImageContainer>
         <ProductImage
           component="img"
@@ -263,6 +267,7 @@ const ProductCard = ({ product }) => {
           alt={product.name}
         />
       </ImageContainer>
+      </div>
       <ContentWrapper>
         <CategoryLabel>
           {product.Category || 'General'}
@@ -283,7 +288,7 @@ const ProductCard = ({ product }) => {
             </DiscountPrice>
           )}
         </PriceContainer>
-        
+  
         <Box sx={{ mb: { xs: 1, sm: 1.5 } }}>
           <Typography 
             variant="subtitle2" 
@@ -307,7 +312,6 @@ const ProductCard = ({ product }) => {
             ))}
           </SizeButtonsContainer>
         </Box>
-
         <Box sx={{ mb: { xs: 1, sm: 1.5 } }}>
           <Typography 
             variant="subtitle2" 
