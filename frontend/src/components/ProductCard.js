@@ -258,105 +258,124 @@ const ProductCard = ({ product }) => {
   };
 
   return (
-    <StyledCard>
-      <div onClick={handleUpperHalfClick} style={{ cursor: "pointer" }}>
-      <ImageContainer>
-        <ProductImage
-          component="img"
-          image={product.images[0] || '/placeholder-image.jpg'}
-          alt={product.name}
-        />
-      </ImageContainer>
-      </div>
-      <ContentWrapper>
-        <CategoryLabel>
-          {product.Category || 'General'}
-        </CategoryLabel>
-        <ProductTitle>
-          {product.name}
-        </ProductTitle>
-        <ProductDescription>
-          {product.description || defaultDescription}
-        </ProductDescription>
-        <PriceContainer>
-          <ProductPrice>
-            ₹{calculateDiscountedPrice()}
-          </ProductPrice>
-          {product.discount > 0 && (
-            <DiscountPrice>
-              ₹{product.price}
-            </DiscountPrice>
-          )}
-        </PriceContainer>
-  
-        <Box sx={{ mb: { xs: 1, sm: 1.5 } }}>
-          <Typography 
-            variant="subtitle2" 
-            sx={{ 
-              color: 'text.secondary',
-              mb: 0.5,
-              fontSize: { xs: '0.75rem', sm: '0.875rem' }
-            }}
-          >
-            Select Size
-          </Typography>
-          <SizeButtonsContainer>
-            {sizes.map((size) => (
-              <SizeButton
-                key={size}
-                selected={selectedSize === size}
-                onClick={() => handleSizeSelect(size)}
-              >
-                {size}
-              </SizeButton>
-            ))}
-          </SizeButtonsContainer>
-        </Box>
-        <Box sx={{ mb: { xs: 1, sm: 1.5 } }}>
-          <Typography 
-            variant="subtitle2" 
-            sx={{ 
-              color: 'text.secondary',
-              mb: 0.5,
-              fontSize: { xs: '0.75rem', sm: '0.875rem' }
-            }}
-          >
-            Quantity
-          </Typography>
-          <QuantityControl>
-            <QuantityButton 
-              onClick={() => handleQuantityChange(-1)}
-              disabled={quantity <= 1}
-            >
-              <RemoveIcon fontSize="small" />
-            </QuantityButton>
-            <QuantityText>{quantity}</QuantityText>
-            <QuantityButton onClick={() => handleQuantityChange(1)}>
-              <AddIcon fontSize="small" />
-            </QuantityButton>
-          </QuantityControl>
-        </Box>
+<StyledCard onClick={handleUpperHalfClick}>
+  <div style={{ cursor: "pointer" }}>
+    <ImageContainer>
+      <ProductImage
+        component="img"
+        image={product.images[0] || '/placeholder-image.jpg'}
+        alt={product.name}
+      />
+    </ImageContainer>
+  </div>
+  <ContentWrapper>
+    <CategoryLabel>
+      {product.Category || 'General'}
+    </CategoryLabel>
+    <ProductTitle>
+      {product.name}
+    </ProductTitle>
+    <ProductDescription>
+      {product.description || defaultDescription}
+    </ProductDescription>
+    <PriceContainer>
+      <ProductPrice>
+        ₹{calculateDiscountedPrice()}
+      </ProductPrice>
+      {product.discount > 0 && (
+        <DiscountPrice>
+          ₹{product.price}
+        </DiscountPrice>
+      )}
+    </PriceContainer>
 
-        <ActionButtons>
-          <ActionButton
-            variant="contained"
-            onClick={handleAddToCart}
-            disabled={!selectedSize || addingToCart}
-            fullWidth
+    <Box sx={{ mb: { xs: 1, sm: 1.5 } }}>
+      <Typography 
+        variant="subtitle2" 
+        sx={{ 
+          color: 'text.secondary',
+          mb: 0.5,
+          fontSize: { xs: '0.75rem', sm: '0.875rem' }
+        }}
+      >
+        Select Size
+      </Typography>
+      <SizeButtonsContainer>
+        {sizes.map((size) => (
+          <SizeButton
+            key={size}
+            selected={selectedSize === size}
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent click from triggering handleUpperHalfClick
+              handleSizeSelect(size);
+            }}
           >
-            {addingToCart ? 'Added!' : 'Add to Cart'}
-          </ActionButton>
-          <ActionButton
-            variant="outlined"
-            onClick={handleBuyNow}
-            disabled={!selectedSize}
-            fullWidth
-          >
-            Buy Now
-          </ActionButton>
-        </ActionButtons>
-      </ContentWrapper>
-    </StyledCard>
+            {size}
+          </SizeButton>
+        ))}
+      </SizeButtonsContainer>
+    </Box>
+
+    <Box sx={{ mb: { xs: 1, sm: 1.5 } }}>
+      <Typography 
+        variant="subtitle2" 
+        sx={{ 
+          color: 'text.secondary',
+          mb: 0.5,
+          fontSize: { xs: '0.75rem', sm: '0.875rem' }
+        }}
+      >
+        Quantity
+      </Typography>
+      <QuantityControl>
+        <QuantityButton 
+          onClick={(e) => {
+            e.stopPropagation();
+            handleQuantityChange(-1);
+          }}
+          disabled={quantity <= 1}
+        >
+          <RemoveIcon fontSize="small" />
+        </QuantityButton>
+        <QuantityText>{quantity}</QuantityText>
+        <QuantityButton 
+          onClick={(e) => {
+            e.stopPropagation();
+            handleQuantityChange(1);
+          }}
+        >
+          <AddIcon fontSize="small" />
+        </QuantityButton>
+      </QuantityControl>
+    </Box>
+
+    <ActionButtons>
+      <ActionButton
+        variant="contained"
+        onClick={(e) => {
+          e.stopPropagation(); // Prevent handleUpperHalfClick from being triggered
+          handleAddToCart();
+        }}
+        disabled={!selectedSize || addingToCart}
+        fullWidth
+      >
+        {addingToCart ? 'Added!' : 'Add to Cart'}
+      </ActionButton>
+      <ActionButton
+        variant="outlined"
+        onClick={(e) => {
+          e.stopPropagation(); // Prevent handleUpperHalfClick from being triggered
+          handleBuyNow();
+        }}
+        disabled={!selectedSize}
+        fullWidth
+      >
+        Buy Now
+      </ActionButton>
+    </ActionButtons>
+  </ContentWrapper>
+</StyledCard>
+
   );
 };
 
