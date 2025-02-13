@@ -27,18 +27,22 @@ const StyledCard = styled(Card)(({ theme }) => ({
 const ImageContainer = styled(Box)({
   position: 'relative',
   width: '100%',
-  paddingTop: '80%',
+  paddingTop: '80%', // Keeps aspect ratio
   backgroundColor: '#fff',
+  overflow: 'hidden',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderRadius: '12px', // Keeps it neat
 });
 
-const ProductImage = styled(CardMedia)({
+const ProductImage = styled("img")({
+  width: '100%', // Keeps it within bounds
+  height: '100%', // Ensures no overflow
+  objectFit: 'contain', // Prevents cropping and overflow
   position: 'absolute',
-  top: 0,
-  left: 0,
-  width: '100%',
-  height: '100%',
-  objectFit: 'contain',
-  padding: '12px',
+  top: '0',
+  left: '0',
 });
 
 const ContentWrapper = styled(Box)(({ theme }) => ({
@@ -259,15 +263,14 @@ const ProductCard = ({ product }) => {
 
   return (
 <StyledCard onClick={handleUpperHalfClick}>
-  <div style={{ cursor: "pointer" }}>
-    <ImageContainer>
-      <ProductImage
-        component="img"
-        image={product.images[0] || '/placeholder-image.jpg'}
-        alt={product.name}
-      />
-    </ImageContainer>
-  </div>
+<div style={{ cursor: "pointer" }}>
+  <ImageContainer>
+    <ProductImage
+      src={product.images[0] || '/placeholder-image.jpg'}
+      alt={product.name}
+    />
+  </ImageContainer>
+</div>
   <ContentWrapper>
     <CategoryLabel>
       {product.Category || 'General'}

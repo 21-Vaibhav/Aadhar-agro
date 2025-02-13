@@ -10,6 +10,7 @@ import Cart from "./pages/Cart";
 import Products from "./pages/Products";
 import ProductDetail from "./pages/ProductDetail";
 import Checkout from "./pages/Checkout";
+import AdminDashboard from "./pages/AdminDashboard";
 import OrderSuccess from "./pages/OrderSuccess";
 import { Analytics } from "@vercel/analytics/react";
 import { CartProvider } from "./context/CartContext";
@@ -40,6 +41,7 @@ function App() {
                 <Route path="/order-success" element={<OrderSuccess />} />
                 <Route path="/products" element={<Products />} />
                 <Route path="/products/:id" element={<ProductDetail />} />
+                <Route path="/admin" element={<AdminDashboard />} />
               </Routes>
             </Box>
             <Footer />
