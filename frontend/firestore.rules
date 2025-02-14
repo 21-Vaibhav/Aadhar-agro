@@ -11,23 +11,35 @@ service cloud.firestore {
       return request.auth.uid == userId;
     }
 
+    function isSuperAdmin() {
+      return isAuthenticated() && 
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'superadmin';
+    }
+
+    function isOrderManager() {
+      return isAuthenticated() && (
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ordermanager' ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'superadmin'
+      );
+    }
+
     // User profiles
     match /users/{userId} {
       allow read: if isAuthenticated();
       allow create: if isAuthenticated() && isOwner(userId);
-      allow update, delete: if isAuthenticated() && isOwner(userId);
+      allow update, delete: if isAuthenticated() && (isOwner(userId) || isSuperAdmin());
     }
 
     // Orders
     match /orders/{orderId} {
       allow read: if isAuthenticated() && (
         isOwner(resource.data.userId) || 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true
+        isOrderManager()
       );
       allow create: if isAuthenticated() && isOwner(request.resource.data.userId);
       allow update: if isAuthenticated() && (
         isOwner(resource.data.userId) || 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true
+        isOrderManager()
       );
       allow delete: if false; // Never delete orders, only update status
     }
@@ -35,8 +47,7 @@ service cloud.firestore {
     // Products
     match /products/{productId} {
       allow read: if true; // Anyone can view products
-      allow write: if isAuthenticated() && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+      allow write: if isSuperAdmin(); // Only super admin can modify products
     }
 
     // Cart items
