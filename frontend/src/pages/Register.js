@@ -98,7 +98,12 @@ const Register = () => {
         fullName: formData.fullName,
         email: formData.email,
         phone: formData.phone,
-        createdAt: new Date().toISOString(),
+        role: 'customer',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        cart: [],
+        orders: [],
+        addresses: []
       });
 
       navigate('/login'); // Redirect to login page after successful registration

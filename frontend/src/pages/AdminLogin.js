@@ -30,7 +30,7 @@ const AdminLogin = () => {
       const userDoc = await getDoc(doc(db, "users", userCredential.user.uid));
       const userData = userDoc.data();
 
-      if (userData?.role === "superadmin" || userData?.role === "ordermanager") {
+      if (userData?.role === "superAdmin" || userData?.role === "ordermanager") {
         navigate("/admin");
       } else {
         await auth.signOut();

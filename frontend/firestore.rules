@@ -13,13 +13,13 @@ service cloud.firestore {
 
     function isSuperAdmin() {
       return isAuthenticated() && 
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'superadmin';
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'superAdmin';
     }
 
     function isOrderManager() {
       return isAuthenticated() && (
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'ordermanager' ||
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'superadmin'
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'superAdmin'
       );
     }
 

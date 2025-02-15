@@ -10,6 +10,8 @@ import {
 import { useNavigate } from "react-router-dom";
 import { auth, db, storage } from "../firebase";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+
+
 import {
   Container,
   Table,
@@ -44,6 +46,7 @@ const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState(0);
+  const user = auth.currentUser;
   const [openProductDialog, setOpenProductDialog] = useState(false);
   const [newProduct, setNewProduct] = useState({
     name: "",
@@ -66,7 +69,7 @@ const AdminDashboard = () => {
         const userDoc = await getDoc(doc(db, "users", user.uid));
         const role = userDoc.data()?.role;
         
-        if (role !== "superadmin" && role !== "ordermanager") {
+        if (role !== "superAdmin" && role !== "ordermanager") {
           navigate("/");
           return;
         }
@@ -94,6 +97,7 @@ const AdminDashboard = () => {
         setOrders(ordersList);
       } catch (err) {
         setError("Failed to fetch orders");
+        console.log(err);
       }
     };
 
@@ -117,7 +121,7 @@ const AdminDashboard = () => {
 
   const handleProductSubmit = async (e) => {
     e.preventDefault();
-    if (userRole !== "superadmin") return;
+    if (userRole !== "superAdmin") return;
 
     try {
       setLoading(true);
@@ -162,6 +166,11 @@ const AdminDashboard = () => {
       </Box>
     );
   }
+  if (user) {
+  console.log("User is logged in:", user.uid);
+} else {
+  console.log("User is not logged in");
+}
 
   if (error) {
     return (
@@ -179,7 +188,7 @@ const AdminDashboard = () => {
             Admin Dashboard
           </Typography>
           <Typography variant="subtitle1">
-            Role: {userRole === "superadmin" ? "Super Admin" : "Order Manager"}
+            Role: {userRole === "superAdmin" ? "Super Admin" : "Order Manager"}
           </Typography>
         </Toolbar>
       </AppBar>
@@ -187,7 +196,7 @@ const AdminDashboard = () => {
       <Container sx={{ mt: 4 }}>
         <Tabs value={activeTab} onChange={(e, newValue) => setActiveTab(newValue)}>
           <Tab label="Orders" />
-          {userRole === "superadmin" && <Tab label="Products" />}
+          {userRole === "superAdmin" && <Tab label="Products" />}
         </Tabs>
 
         {activeTab === 0 && (
@@ -211,7 +220,7 @@ const AdminDashboard = () => {
                     <TableCell>
                       {new Date(order.createdAt?.toDate()).toLocaleDateString()}
                     </TableCell>
-                    <TableCell>₹{order.total}</TableCell>
+                    <TableCell>₹{order.totalAmount}</TableCell>
                     <TableCell>{order.status}</TableCell>
                     <TableCell>
                       <Select
@@ -233,7 +242,7 @@ const AdminDashboard = () => {
           </TableContainer>
         )}
 
-        {activeTab === 1 && userRole === "superadmin" && (
+        {activeTab === 1 && userRole === "superAdmin" && (
           <Box sx={{ mt: 2 }}>
             <Button
               variant="contained"
