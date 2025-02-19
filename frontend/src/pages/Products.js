@@ -23,7 +23,7 @@ import Fuse from 'fuse.js';
 const Products = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { category: urlCategory } = useParams();
+  const { category: urlCategory } = useParams() || {};
   const [category, setCategory] = useState(urlCategory || 'all');
   const navigate = useNavigate();
   const [sortBy, setSortBy] = useState('featured');
@@ -33,6 +33,8 @@ const Products = () => {
   const [categories, setCategories] = useState(['all']);
   const [fuse, setFuse] = useState(null);
   const productsPerPage = 12;
+
+
 
   // Initialize Fuse.js for fuzzy search
   useEffect(() => {
@@ -73,17 +75,17 @@ const Products = () => {
 
     fetchProducts();
   }, []);
-  
+
   useEffect(() => {
     setCategory(urlCategory || 'all');
     setPage(1);
   }, [urlCategory]);
 
   const handleCategoryChange = (event) => {
-    const newCategory = event.target.value;
-    navigate(`/products/${newCategory === 'all' ? '' : newCategory}`);
-    setCategory(newCategory);
-    setPage(1);
+  const newCategory = event.target.value;
+  navigate(newCategory === 'all' ? '/products' : `/category/${newCategory}`);
+  setCategory(newCategory);
+  setPage(1);
   };
 
   const handleSortChange = (event) => {
