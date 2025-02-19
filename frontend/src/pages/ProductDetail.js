@@ -116,7 +116,7 @@ const ProductDetail = () => {
       <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
         <CircularProgress />
       </Box>
-    );
+    )
   }
 
   if (error) {
@@ -146,8 +146,8 @@ const ProductDetail = () => {
               borderRadius: 2,
             }}
           >
-            <img
-              src={product.imageUrl}
+            <img 
+              src={product.images[0]}
               alt={product.name}
               style={{
                 maxWidth: '100%',
