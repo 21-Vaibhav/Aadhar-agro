@@ -292,7 +292,7 @@ const Home = () => {
                     variant="contained"
                     color="primary"
                     size={isMobile ? "small" : "medium"}
-                    onClick={() => navigate(`/products/${category.title.toLowerCase()}`)}
+                    onClick={() => navigate(`category/${category.title.toLowerCase()}`)}
                   >
                     Check out Products
                   </Button>
