@@ -308,126 +308,137 @@ const Navbar = () => {
           >
             {/* Mobile Menu Icon */}
             {isMobile && (
-              <MenuButton
-                aria-label="open drawer"
-                edge="start"
-                onClick={handleDrawerToggle}
-              >
-                <Box>
-                  <span className="line" />
-                  <span className="line" />
-                  <span className="line" />
-                </Box>
-              </MenuButton>
-            )}
+        <MenuButton
+          aria-label="open drawer"
+          edge="start"
+          onClick={handleDrawerToggle}
+        >
+          <Box>
+            <span className="line" />
+            <span className="line" />
+            <span className="line" />
+          </Box>
+        </MenuButton>
+      )}
 
-            {/* Logo and User Info Container */}
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                flexGrow: { xs: 1, md: 0 },
-                justifyContent: 'space-between',
-                mr: { md: 4 },
+      {/* Logo and User Info Container */}
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          flexGrow: { xs: 1, md: 0 },
+          justifyContent: 'space-between',
+          mr: { md: 4 },
+        }}
+      >
+        {/* Logo */}
+        <Box
+          component={RouterLink}
+          to="/"
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            textDecoration: 'none',
+            height: { xs: '40px', sm: '45px', md: '50px' },
+          }}
+        >
+          <img
+            src={require('../images/aadhaar logo.png')}
+            alt="Aadhar Agro Logo"
+            style={{
+              height: '100%',
+              width: 'auto',
+              objectFit: 'contain',
+            }}
+          />
+        </Box>
+
+        {/* Mobile Actions Container */}
+        {isMobile && (
+          <Stack 
+            direction="row" 
+            spacing={1} 
+            alignItems="center"
+            sx={{ 
+              ml: 'auto',
+              mr: user ? 1 : 0 
+            }}
+          >
+            <IconButton
+              component={RouterLink}
+              to="/cart"
+              color="primary"
+              aria-label="cart"
+              sx={{ 
+                order: 1,
+                position: 'relative',
+                right: 0
               }}
             >
-              <Box
+              <Badge badgeContent={cartCount} color="primary">
+                <CartIcon />
+              </Badge>
+            </IconButton>
+            
+            {!user ? (
+              <Button
                 component={RouterLink}
-                to="/"
+                to="/login"
+                variant="contained"
+                color="primary"
+                size="small"
+                sx={{
+                  textTransform: 'none',
+                  minWidth: 'auto',
+                  px: 2,
+                  order: 2
+                }}
+              >
+                Sign In
+              </Button>
+            ) : (
+              <Box
                 sx={{
                   display: 'flex',
                   alignItems: 'center',
-                  textDecoration: 'none',
-                  height: { xs: '40px', sm: '45px', md: '50px' },
+                  background: 'linear-gradient(45deg, rgba(46, 125, 50, 0.08), rgba(46, 125, 50, 0.15))',
+                  borderRadius: '20px',
+                  padding: '6px 12px',
+                  border: '1px solid rgba(46, 125, 50, 0.1)',
+                  boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                  transition: 'all 0.2s ease',
+                  order: 2,
+                  '&:hover': {
+                    background: 'linear-gradient(45deg, rgba(46, 125, 50, 0.12), rgba(46, 125, 50, 0.2))',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                  },
                 }}
               >
-                <img
-                  src={require('../images/aadhaar logo.png')}
-                  alt="Aadhar Agro Logo"
-                  style={{
-                    height: '100%',
-                    width: 'auto',
-                    objectFit: 'contain',
+                <PersonIcon 
+                  sx={{ 
+                    fontSize: '1rem',
+                    color: 'primary.main',
+                    opacity: 0.9,
+                    mr: 0.7,
                   }}
                 />
-              </Box>
-
-              {/* Mobile User Info */}
-              {isMobile && (
-                <Stack direction="row" spacing={1} alignItems="center">
-                  <IconButton
-                    component={RouterLink}
-                    to="/cart"
-                    color="primary"
-                    aria-label="cart"
-                  >
-                    <Badge badgeContent={cartCount} color="primary">
-                      <CartIcon />
-                    </Badge>
-                  </IconButton>
-                  
-                  {!user && (
-                    <Button
-                      component={RouterLink}
-                      to="/login"
-                      variant="contained"
-                      color="primary"
-                      size="small"
-                      sx={{
-                        textTransform: 'none',
-                        minWidth: 'auto',
-                        px: 2
-                      }}
-                    >
-                      Sign In
-                    </Button>
-                  )}
-                </Stack>
-              )}
-
-              {/* Mobile User Name */}
-              {isMobile && user && (
-                <Box
+                <Typography
+                  variant="body2"
                   sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    background: 'linear-gradient(45deg, rgba(46, 125, 50, 0.08), rgba(46, 125, 50, 0.15))',
-                    borderRadius: '20px',
-                    padding: '6px 12px',
-                    ml: 2,
-                    border: '1px solid rgba(46, 125, 50, 0.1)',
-                    boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-                    transition: 'all 0.2s ease',
-                    '&:hover': {
-                      background: 'linear-gradient(45deg, rgba(46, 125, 50, 0.12), rgba(46, 125, 50, 0.2))',
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                    },
+                    color: 'primary.main',
+                    fontWeight: 600,
+                    fontSize: '0.9rem',
+                    letterSpacing: '0.2px',
+                    textShadow: '0 1px 1px rgba(255,255,255,0.5)',
                   }}
                 >
-                  <PersonIcon 
-                    sx={{ 
-                      fontSize: '1rem',
-                      color: 'primary.main',
-                      opacity: 0.9,
-                      mr: 0.7,
-                    }}
-                  />
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      color: 'primary.main',
-                      fontWeight: 600,
-                      fontSize: '0.9rem',
-                      letterSpacing: '0.2px',
-                      textShadow: '0 1px 1px rgba(255,255,255,0.5)',
-                    }}
-                  >
-                    {user.displayName || 'User'}
-                  </Typography>
-                </Box>
-              )}
-            </Box>
-
+                  {user.displayName || 'User'}
+                </Typography>
+              </Box>
+            )}
+          </Stack>
+        )}
+      </Box>
             {/* Desktop Menu */}
             <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
               {menuItems.map((item) => (
