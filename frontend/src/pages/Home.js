@@ -5,6 +5,7 @@ import { PlayArrow as PlayArrowIcon } from '@mui/icons-material';
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
+import { useNavigate } from 'react-router-dom';
 import "swiper/css/pagination";
 
 const StyledHeroSection = styled(Box)(({ theme }) => ({
@@ -90,40 +91,40 @@ const slides = [
 
 const features = [
   {
-    title: "We're using a tech to improve fertilizer access to remote places!",
-    image: 'https://images.unsplash.com/photo-1655130944281-072e0644db75?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTd8fGZlcnRpbGl6ZXJ8ZW58MHx8MHx8fDI%3D',
-    description: "Advanced Web-app for easy access to fertilizers"
+    title: "ರಮೇಶ್ ಹೆಗಡೆ – ಕಾಫಿ ಕೃಷಿಕ, ಚಿಕ್ಕಮಗಳೂರು",
+    image: 'https://media.istockphoto.com/id/1316742957/photo/happy-indian-farmer-holding-sickle-and-paddy-crop-in-hand-concept-good-crop-yields-due-to.jpg?s=612x612&w=0&k=20&c=OcBiwFtjULyaBLmKiKHzDJPh_63oSZUzsKmUSfk4_QM=',
+    description: "ಆಧಾರ್ ಆಗ್ರೋ ಯೂರಿಯಾ ಮತ್ತು ಆಯುರ್ವೇದಿಕ ಜೈವಿಕ肥ರುಗಳ ಬಳಕೆ ನಂತರ, ನನ್ನ ಕಾಫಿ ತೋಟದ ಗಿಡಗಳು ಆರೋಗ್ಯವಾಗಿದ್ದು, ಫಲಧಾರೆಯ ಪ್ರಮಾಣವೂ ಹೆಚ್ಚಾಗಿದೆ. ಈ肥ರುಗಳು ಮಣ್ಣಿನ ಪೋಷಕಾಂಶಗಳನ್ನು ಸಮತೋಲನಗೊಳಿಸಿ ಉತ್ತಮ ಬೆಳೆಯ ಬೆಳವಣಿಗೆಯನ್ನು ಖಚಿತಪಡಿಸುತ್ತವೆ. ನಿಜವಾಗಿಯೂ ಉತ್ತಮ ಉತ್ಪನ್ನ"
   },
   {
-    title: "100% legit products available",
-    image: "https://images.unsplash.com/photo-1558906307-1a1c52b5ac8a?w=800&auto=format&fit=crop&q=60&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8ZmVydGlsaXplcnxlbnwwfHwwfHx8Mg%3D%3D",
-    description: "Certified products which produce good yields"
+    title: " ಮಹೇಶ್ ಗೌಡ – ರೈತ, ಕರ್ನಾಟಕ",
+    image: "https://media.istockphoto.com/id/1252340483/photo/sweet-corn-farming-in-bylakuppe-karnataka-india.jpg?s=612x612&w=0&k=20&c=KUNemvWu0zCPf3rP5uUlkCOyVQAjX0KokRnlyWG4Gg4=",
+    description: "ನಾನು ಕಳೆದ ಎರಡು ವರ್ಷಗಳಿಂದ ಆಧಾರ್ ಆಗ್ರೋ ಕಂಪನಿಯ ಉತ್ಪನ್ನಗಳನ್ನು ಬಳಸುತ್ತಿದ್ದೇನೆ. ನನ್ನ ಭತ್ತ ಮತ್ತು ಗೋಧಿ ಬೆಳೆಗೆ ಅತ್ಯುತ್ತಮ ಫಲಿತಾಂಶಗಳು ದೊರಕಿವೆ. ಮಣ್ಣು ಸಂಪತ್ತು ಹೆಚ್ಚಿದ್ದು, ಬೆಳೆಯ ಬೆಳವಣಿಗೆಯೂ ಉತ್ತಮವಾಗಿದೆ. ಎಲ್ಲಾ ರೈತರಿಗೆ ನಾನು ಶಿಫಾರಸು ಮಾಡುತ್ತೇನೆ"
   },
   {
-    title: "Reforming in the systems",
-    image: "https://images.unsplash.com/photo-1574943320219-553eb213f72d?auto=format&fit=crop&w=800&q=60",
-    description: "Innovative agricultural solutions"
+    title: "ಲಕ್ಷ್ಮೀ ನಾರಾಯಣ – ಹಣ್ಣು ಮತ್ತು ತರಕಾರಿಗಳ ಕೃಷಿಕ, ಮೈಸೂರು",
+    image: "https://media.istockphoto.com/id/1266674077/photo/fruts-and-vegetables-at-market.jpg?s=612x612&w=0&k=20&c=HeT7-4YXcAK-t95C2JVPVQVx_6Dkvx0H_LFZsi7xXGQ=",
+    description: "ನಾನು ಪತ್ತೆ ಮಾಡಿರುವ ಅತ್ಯುತ್ತಮ ಸರಕುಗಳಲ್ಲೊಂದು ಆಧಾರ್ ಆಗ್ರೋ. ಈ肥ರು ಬಳಸಿ ನನ್ನ ಟೊಮ್ಯಾಟೋ ಮತ್ತು ಮೆಣಸಿನಕಾಯಿ ಬೆಳೆಯ ಇಳುವರಿ ದಟ್ಟವಾಗಿದೆ. ಉತ್ತಮ ಬೆಳೆ ಹಾಗೂ ಉತ್ತಮ ಮಣ್ಣಿನ ಸಮತೋಲನಕ್ಕೆ ಇದು ಸಹಾಯ ಮಾಡುತ್ತಿದೆ"
   }
 ];
 
 const categories = [
   {
-    title: 'Fungicides',
+    title: 'Fungicide',
     image: 'https://media.gettyimages.com/id/968398890/photo/a-bottle-of-luna-fungicide-produced-by-bayer-cropscience-ag-stands-beside-farm-buildings-in.jpg?s=612x612&w=gi&k=20&c=nR8xQmfmGQl27L-z8zJNytwsBXKdUMfngSQi63oy8i4=',
     description: 'Combat plant diseases'
   },
   {
-    title: 'Pesticides',
+    title: 'Pesticide',
     image: 'https://5.imimg.com/data5/SELLER/Default/2023/12/366454992/GF/WW/XI/74067162/pesticide-packaging-box-make-in-india.jpg',
     description: 'Combat plant diseases'
   },
   {
-    title: 'Herbicides',
+    title: 'Herbicide',
     image: 'https://media.istockphoto.com/id/958953510/photo/agricultural-worker-takes-care-of-his-estate.jpg?s=612x612&w=0&k=20&c=asNVXLUWqkGa5DKVFo9Z3WWoTu9Hj5DCUuIPbvcpPOQ=',
     description: 'Smart weed control solutions for-fresh vegetables'
   },
   {
-    title: 'Growth Regulators',
+    title: 'Growth Regulator',
     image: 'https://media.istockphoto.com/id/958953510/photo/agricultural-worker-takes-care-of-his-estate.jpg?s=612x612&w=0&k=20&c=asNVXLUWqkGa5DKVFo9Z3WWoTu9Hj5DCUuIPbvcpPOQ=',
     description: 'Growth regulators for optimal crop growth'
   },
@@ -146,6 +147,8 @@ const Home = () => {
       element.scrollIntoView({ behavior: 'smooth' });
     }
   };
+  
+  const navigate = useNavigate(); 
 
   return (
     <Box>
@@ -219,7 +222,7 @@ const Home = () => {
                       color="primary"
                       size={isMobile ? "medium" : "large"}
                       sx={{ mr: 2 }}
-                      onClick={scrollToStory}
+                      onClick={() => navigate('/products')}
                     >
                       Explore our Solution
                     </Button>
@@ -230,9 +233,100 @@ const Home = () => {
           ))}
         </Swiper>
       </StyledHeroSection>
+  
+      {/* Categories Section */}
+      <Container sx={{ py: { xs: 4, md: 8 } }}>
+        <Typography
+          variant="subtitle1"
+          color="primary"
+          align="center"
+          sx={{ 
+            mb: 2, 
+            fontWeight: 600,
+            fontSize: { xs: '1rem', md: '1.25rem' }
+          }}
+        >
+          Our Range of Products
+        </Typography>
+        <Typography 
+          variant="h3" 
+          align="center" 
+          sx={{ 
+            mb: { xs: 3, md: 6 },
+            fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' }
+          }}
+        >
+          What We Offer
+        </Typography>
+        <Grid container spacing={{ xs: 2, md: 3 }}>
+          {categories.map((category, index) => (
+            <Grid item xs={12} sm={6} md={3} key={index}>
+              <CategoryCard>
+                <StyledCardMedia
+                  image={category.image}
+                  title={category.title}
+                />
+                <Box
+                  className="overlay"
+                  sx={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    bgcolor: 'rgba(0, 0, 0, 0.5)',
+                    p: { xs: 2, md: 3 },
+                    transition: 'background-color 0.3s',
+                  }}
+                >
+                  <Typography 
+                    variant="h6" 
+                    sx={{ 
+                      color: 'white', 
+                      mb: 1,
+                      fontSize: { xs: '1.1rem', md: '1.25rem' }
+                    }}
+                  >
+                    {category.title}
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    size={isMobile ? "small" : "medium"}
+                    onClick={() => navigate(`/products/${category.title.toLowerCase()}`)}
+                  >
+                    Check out Products
+                  </Button>
+                </Box>
+              </CategoryCard>
+            </Grid>
+          ))}
+        </Grid>
+      </Container>
 
       {/* Features Section */}
       <Container sx={{ py: { xs: 4, md: 8 } }}>
+      <Typography
+          variant="subtitle1"
+          color="primary"
+          align="center"
+          sx={{ 
+            mb: 2, 
+            fontWeight: 600,
+            fontSize: { xs: '1rem', md: '1.25rem' }
+          }}
+        >
+          Testimonials By our Customers
+        </Typography>
+        <Typography 
+          variant="h3" 
+          align="center" 
+          sx={{ 
+            mb: { xs: 3, md: 6 },
+            fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' }
+          }}
+        >
+          We are loved by our customers
+        </Typography>
         <Grid container spacing={{ xs: 2, md: 4 }}>
           {features.map((feature, index) => (
             <Grid item xs={12} sm={6} md={4} key={index}>
@@ -332,74 +426,6 @@ const Home = () => {
           </Grid>
         </Container>
       </Box>
-
-      {/* Categories Section */}
-      <Container sx={{ py: { xs: 4, md: 8 } }}>
-        <Typography
-          variant="subtitle1"
-          color="primary"
-          align="center"
-          sx={{ 
-            mb: 2, 
-            fontWeight: 600,
-            fontSize: { xs: '1rem', md: '1.25rem' }
-          }}
-        >
-          Our Range of Products
-        </Typography>
-        <Typography 
-          variant="h3" 
-          align="center" 
-          sx={{ 
-            mb: { xs: 3, md: 6 },
-            fontSize: { xs: '2rem', sm: '2.5rem', md: '3rem' }
-          }}
-        >
-          What We Offer
-        </Typography>
-        <Grid container spacing={{ xs: 2, md: 3 }}>
-          {categories.map((category, index) => (
-            <Grid item xs={12} sm={6} md={3} key={index}>
-              <CategoryCard>
-                <StyledCardMedia
-                  image={category.image}
-                  title={category.title}
-                />
-                <Box
-                  className="overlay"
-                  sx={{
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    bgcolor: 'rgba(0, 0, 0, 0.5)',
-                    p: { xs: 2, md: 3 },
-                    transition: 'background-color 0.3s',
-                  }}
-                >
-                  <Typography 
-                    variant="h6" 
-                    sx={{ 
-                      color: 'white', 
-                      mb: 1,
-                      fontSize: { xs: '1.1rem', md: '1.25rem' }
-                    }}
-                  >
-                    {category.title}
-                  </Typography>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    size={isMobile ? "small" : "medium"}
-                  >
-                    Read More
-                  </Button>
-                </Box>
-              </CategoryCard>
-            </Grid>
-          ))}
-        </Grid>
-      </Container>
 
       {/* Stats Section */}
       <Box sx={{ bgcolor: theme.palette.primary.main, color: 'white', py: { xs: 4, md: 6 } }}>

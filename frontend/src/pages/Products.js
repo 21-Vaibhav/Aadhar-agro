@@ -17,12 +17,15 @@ import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../firebase';
 import ProductCard from '../components/ProductCard';
 import SearchIcon from '@mui/icons-material/Search';
+import { useParams, useNavigate } from 'react-router-dom';
 import Fuse from 'fuse.js';
 
 const Products = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [category, setCategory] = useState('all');
+  const { category: urlCategory } = useParams();
+  const [category, setCategory] = useState(urlCategory || 'all');
+  const navigate = useNavigate();
   const [sortBy, setSortBy] = useState('featured');
   const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
@@ -70,9 +73,16 @@ const Products = () => {
 
     fetchProducts();
   }, []);
+  
+  useEffect(() => {
+    setCategory(urlCategory || 'all');
+    setPage(1);
+  }, [urlCategory]);
 
   const handleCategoryChange = (event) => {
-    setCategory(event.target.value);
+    const newCategory = event.target.value;
+    navigate(`/products/${newCategory === 'all' ? '' : newCategory}`);
+    setCategory(newCategory);
     setPage(1);
   };
 

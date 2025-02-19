@@ -45,6 +45,8 @@ const ProductDetail = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [addingToCart, setAddingToCart] = useState(false);
+
 
   // Fetch product details
   useEffect(() => {
@@ -79,37 +81,25 @@ const ProductDetail = () => {
     }
   };
 
-  const handleAddToCart = async () => {
-    if (!auth.currentUser) {
-      navigate('/login');
-      return;
-    }
-
-    try {
-      const cartItem = {
-        productId: product.id,
-        name: product.name,
-        price: product.price,
-        quantity: quantity,
-        size: selectedSize,
-        imageUrl: product.imageUrl,
-      };
-
-      await addToCart(cartItem);
-      
-      setSnackbarMessage('Product added to cart successfully!');
-      setSnackbarOpen(true);
-    } catch (err) {
-      console.error('Error adding to cart:', err);
-      setSnackbarMessage('Failed to add product to cart');
-      setSnackbarOpen(true);
-    }
+  const handleAddToCart = () => {
+    if (!selectedSize) return;
+    
+    setAddingToCart(true);
+    addToCart(product, quantity, selectedSize);
+    
+    // Show success feedback
+    setTimeout(() => {
+      setAddingToCart(false);
+    }, 1000);
   };
 
   const handleBuyNow = () => {
-    handleAddToCart();
+    if (!selectedSize) return;
+    
+    addToCart(product, quantity, selectedSize);
     navigate('/cart');
   };
+
 
   if (loading) {
     return (
