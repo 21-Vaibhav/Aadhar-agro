@@ -48,6 +48,26 @@ const ProductDetail = () => {
   const [addingToCart, setAddingToCart] = useState(false);
 
 
+  const defaultSizes = ['100ml', '200ml', '500ml'];
+  const sizes = product?.sizes || defaultSizes;
+
+
+
+  useEffect(() => {
+    if (sizes.length > 0 && !selectedSize) {
+      setSelectedSize(sizes[0]);
+    }
+  }, [sizes]);
+
+  const handleQuantityChange = (delta) => {
+    const newQuantity = Math.max(1, quantity + delta);
+    setQuantity(newQuantity);
+  };
+
+  const handleSizeSelect = (size) => {
+    setSelectedSize(size);
+  };
+
   // Fetch product details
   useEffect(() => {
     const fetchProduct = async () => {
@@ -73,13 +93,6 @@ const ProductDetail = () => {
     fetchProduct();
   }, [id]);
 
-  const handleQuantityChange = (action) => {
-    if (action === 'increase' && quantity < product.stock) {
-      setQuantity(prev => prev + 1);
-    } else if (action === 'decrease' && quantity > 1) {
-      setQuantity(prev => prev - 1);
-    }
-  };
 
   const handleAddToCart = () => {
     if (!selectedSize) return;
@@ -216,19 +229,20 @@ const ProductDetail = () => {
                 Quantity
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <IconButton
-                  onClick={() => handleQuantityChange('decrease')}
-                  disabled={quantity <= 1}
-                >
-                  <RemoveIcon />
-                </IconButton>
-                <Typography>{quantity}</Typography>
-                <IconButton
-                  onClick={() => handleQuantityChange('increase')}
-                  disabled={quantity >= product.stock}
-                >
-                  <AddIcon />
-                </IconButton>
+              <IconButton
+  onClick={() => handleQuantityChange(-1)} // ✅ Correct (passing a number)
+  disabled={quantity <= 1}
+>
+  <RemoveIcon />
+</IconButton>
+<Typography>{quantity}</Typography>
+<IconButton
+  onClick={() => handleQuantityChange(1)} // ✅ Correct (passing a number)
+  disabled={quantity >= product.stock}
+>
+  <AddIcon />
+</IconButton>
+
               </Box>
             </Box>
 
