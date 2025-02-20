@@ -137,9 +137,9 @@ const AdminDashboard = () => {
         name: newProduct.name,
         description: newProduct.description,
         price: parseFloat(newProduct.price),
-        category: newProduct.category,
+        Category: newProduct.category,
         stock: parseInt(newProduct.stock),
-        imageUrl: [imageUrl], // Store as an array of strings
+        images: [imageUrl], // Store as an array of strings
         createdAt: new Date(),
       });
   
