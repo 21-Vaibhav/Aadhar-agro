@@ -122,27 +122,28 @@ const AdminDashboard = () => {
   const handleProductSubmit = async (e) => {
     e.preventDefault();
     if (userRole !== "superAdmin") return;
-
+  
     try {
       setLoading(true);
       let imageUrl = "";
-
+  
+      // Convert image file to base64 string
       if (newProduct.image) {
-        const imageRef = ref(storage, `products/${newProduct.image.name}`);
-        await uploadBytes(imageRef, newProduct.image);
-        imageUrl = await getDownloadURL(imageRef);
+        imageUrl = await convertImageToBase64(newProduct.image);
       }
-
+  
+      // Upload product data to Firestore
       await addDoc(collection(db, "products"), {
         name: newProduct.name,
         description: newProduct.description,
         price: parseFloat(newProduct.price),
         category: newProduct.category,
         stock: parseInt(newProduct.stock),
-        imageUrl,
+        imageUrl: [imageUrl], // Store as an array of strings
         createdAt: new Date(),
       });
-
+  
+      // Reset form and close dialog
       setOpenProductDialog(false);
       setNewProduct({
         name: "",
@@ -154,31 +155,21 @@ const AdminDashboard = () => {
       });
     } catch (err) {
       setError("Failed to add product");
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
-
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
-        <CircularProgress />
-      </Box>
-    );
-  }
-  if (user) {
-  console.log("User is logged in:", user.uid);
-} else {
-  console.log("User is not logged in");
-}
-
-  if (error) {
-    return (
-      <Container>
-        <Alert severity="error">{error}</Alert>
-      </Container>
-    );
-  }
+  
+  // Helper function to convert image file to base64 string
+  const convertImageToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+    });
+  };
 
   return (
     <>
