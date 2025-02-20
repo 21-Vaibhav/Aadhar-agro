@@ -61,18 +61,52 @@ const Login = () => {
     setError('');
     setSuccess(false);
     setLoading(true);
-
+  
+    // Add input validation
+    if (!formData.email || !formData.password) {
+      setError('Email and password are required');
+      setLoading(false);
+      return;
+    }
+  
     try {
-      await signInWithEmailAndPassword(auth, formData.email, formData.password);
+      // Log the attempt (without password)
+      console.log('Attempting sign in with email:', formData.email);
+  
+      const userCredential = await signInWithEmailAndPassword(
+        auth, 
+        formData.email.trim(), // Trim whitespace
+        formData.password
+      );
+  
+      console.log('Sign in successful:', userCredential.user.email);
       setSuccess(true);
       navigate(location.state?.from || '/');
+  
     } catch (error) {
-      setError(error.message);
+      console.error('Sign in error:', error.code, error.message);
+      
+      // Provide user-friendly error messages
+      switch (error.code) {
+        case 'auth/invalid-email':
+          setError('Please enter a valid email address');
+          break;
+        case 'auth/user-not-found':
+          setError('No account found with this email');
+          break;
+        case 'auth/wrong-password':
+          setError('Incorrect password');
+          break;
+        case 'auth/too-many-requests':
+          setError('Too many failed attempts. Please try again later');
+          break;
+        default:
+          setError('Failed to sign in. Please check your credentials and try again');
+      }
     } finally {
       setLoading(false);
     }
   };
-
   const handleForgotPassword = async () => {
     if (!resetEmail) return;
     
