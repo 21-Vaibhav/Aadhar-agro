@@ -55,6 +55,7 @@ const AdminDashboard = () => {
     category: "",
     stock: "",
     image: null,
+    sizes: [],
   });
 
   // Check user authentication and role
@@ -141,6 +142,8 @@ const AdminDashboard = () => {
         stock: parseInt(newProduct.stock),
         images: [imageUrl], // Store as an array of strings
         createdAt: new Date(),
+        sizes: newProduct.sizes,
+
       });
   
       // Reset form and close dialog
@@ -152,6 +155,7 @@ const AdminDashboard = () => {
         category: "",
         stock: "",
         image: null,
+        sizes: [],
       });
     } catch (err) {
       setError("Failed to add product");
@@ -306,6 +310,17 @@ const AdminDashboard = () => {
               }
               style={{ marginTop: 16 }}
             />
+            <TextField
+              fullWidth
+              label="Available Sizes (comma-separated)"
+              value={newProduct.sizes.join(", ")} // Display as comma-separated
+              onChange={(e) =>
+                setNewProduct({ ...newProduct, sizes: e.target.value.split(",").map(s => s.trim()) })
+              }
+              margin="normal"
+              required
+            />
+
           </Box>
         </DialogContent>
         <DialogActions>
