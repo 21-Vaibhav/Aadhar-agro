@@ -6,8 +6,8 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
 import { useNavigate } from 'react-router-dom';
+import { Link } from "react-router-dom";
 import "swiper/css/pagination";
-
 const StyledHeroSection = styled(Box)(({ theme }) => ({
   position: 'relative',
   height: '80vh',
@@ -67,6 +67,7 @@ const StyledCardMedia = styled(CardMedia)(({ theme }) => ({
   height: '100%',
   transition: 'transform 0.3s ease-in-out',
 }));
+
 
 const slides = [
   {
@@ -419,6 +420,7 @@ const Home = () => {
                 color="primary"
                 size={isMobile ? "medium" : "large"}
                 endIcon={<PlayArrowIcon />}
+                component={Link} to="/blog"
               >
                 Discover More
               </Button>

@@ -15,6 +15,7 @@ import OrderSuccess from "./pages/OrderSuccess";
 import { Analytics } from "@vercel/analytics/react";
 import { CartProvider } from "./context/CartContext";
 import AdminLogin from "./pages/AdminLogin";
+import BlogPage from "./pages/Blog";
 import theme from './theme';
 
 function App() {
@@ -45,6 +46,7 @@ function App() {
                 <Route path="/products/:id" element={<ProductDetail />} />
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/admin/login" element={<AdminLogin />} />
+                <Route path="/blog" element={<BlogPage />} />
               </Routes>
             </Box>
             <Footer />
