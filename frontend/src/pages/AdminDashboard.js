@@ -61,6 +61,7 @@ const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [expandedOrder, setExpandedOrder] = useState(null);
   const [openProductDialog, setOpenProductDialog] = useState(false);
+  const [openAddProductDialog, setOpenAddProductDialog] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [customerNames, setCustomerNames] = useState({}); // Store names by userId
@@ -75,8 +76,17 @@ const AdminDashboard = () => {
     packSizes: [],
     sizes: [],
   });
-
-
+  const [newProduct, setNewProduct] = useState({
+    name: "",
+    description: "",
+    longDescription: "",
+    price: "",
+    category: "",
+    stock: "",
+    image: null,
+    packSizes: [],
+    sizes: [],
+  });
 
   // Authentication check
   useEffect(() => {
@@ -232,9 +242,71 @@ const AdminDashboard = () => {
       setError("Failed to update order status");
     }
   };
+  const handleAddProduct = async (e) => {
+    e.preventDefault();
+    if (userRole !== "superAdmin") return;
+  
+    try {
+      setLoading(true);
+      let imageUrl = "";
+  
+      if (newProduct.image) {
+        imageUrl = await convertImageToBase64(newProduct.image);
+      }
+  
+      const productData = {
+        name: newProduct.name,
+        description: newProduct.description,
+        price: parseFloat(newProduct.price),
+        category: newProduct.category,
+        stock: parseInt(newProduct.stock),
+        images: [imageUrl],
+        createdAt: new Date(),
+        sizes: newProduct.sizes,
+      };
+  
+      const docRef = await addDoc(collection(db, "products"), productData);
+      setProducts([...products, { id: docRef.id, ...productData }]);
+  
+      // Reset form and close dialog
+      setNewProduct({
+        name: "",
+        description: "",
+        price: "",
+        category: "",
+        stock: "",
+        image: null,
+        sizes: [],
+      });
+      setOpenAddProductDialog(false);
+    } catch (err) {
+      setError("Failed to add product");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const convertImageToBase64 = (file) => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = (error) => reject(error);
+    });
+  };
 
   // Render functions
   const renderProductsGrid = () => (
+    <>
+    <Box sx={{ mb: 2 }}>
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => setOpenAddProductDialog(true)}
+      >
+        Add New Product
+      </Button>
+    </Box>
     <Grid container spacing={3} sx={{ mt: 2 }}>
       {products.map((product) => (
         <Grid item xs={12} sm={6} md={4} key={product.id}>
@@ -260,13 +332,6 @@ const AdminDashboard = () => {
             <CardActions>
               <Button
                 size="small"
-                startIcon={<EditIcon />}
-                onClick={() => handleEditProduct(product)}
-              >
-                Edit
-              </Button>
-              <Button
-                size="small"
                 color="error"
                 startIcon={<DeleteIcon />}
                 onClick={() => {
@@ -281,7 +346,82 @@ const AdminDashboard = () => {
         </Grid>
       ))}
     </Grid>
-    
+    {/* Add Product Dialog */}
+    <Dialog open={openAddProductDialog} onClose={() => setOpenAddProductDialog(false)}>
+      <DialogTitle>Add New Product</DialogTitle>
+      <DialogContent>
+        <Box component="form" onSubmit={handleProductSubmit} sx={{ mt: 2 }}>
+          <TextField
+            fullWidth
+            label="Product Name"
+            value={newProduct.name}
+            onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+            margin="normal"
+            required
+          />
+          <TextField
+            fullWidth
+            label="Description"
+            value={newProduct.description}
+            onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
+            margin="normal"
+            multiline
+            rows={4}
+            required
+          />
+          <TextField
+            fullWidth
+            label="Price"
+            type="number"
+            value={newProduct.price}
+            onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+            margin="normal"
+            required
+          />
+          <TextField
+            fullWidth
+            label="Category"
+            value={newProduct.category}
+            onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
+            margin="normal"
+            required
+          />
+          <TextField
+            fullWidth
+            label="Stock"
+            type="number"
+            value={newProduct.stock}
+            onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })}
+            margin="normal"
+            required
+          />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setNewProduct({ ...newProduct, image: e.target.files[0] })}
+            style={{ marginTop: 16 }}
+          />
+          <TextField
+            fullWidth
+            label="Available Sizes (comma-separated)"
+            value={newProduct.sizes.join(", ")}
+            onChange={(e) => setNewProduct({ 
+              ...newProduct, 
+              sizes: e.target.value.split(",").map(s => s.trim()) 
+            })}
+            margin="normal"
+            required
+          />
+        </Box>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={() => setOpenAddProductDialog(false)}>Cancel</Button>
+        <Button onClick={handleAddProduct} variant="contained" color="primary">
+          Add Product
+        </Button>
+      </DialogActions>
+    </Dialog>
+  </> 
   );
 
   const renderOrdersTable = () => (
