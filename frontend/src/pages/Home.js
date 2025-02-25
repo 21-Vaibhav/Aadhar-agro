@@ -295,7 +295,6 @@ const Home = () => {
                     size={isMobile ? "small" : "medium"}
                     onClick={() => navigate(`category/${category.title}`)}
                     >
-                  >
                     Check out Products
                   </Button>
                 </Box>
