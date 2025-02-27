@@ -111,7 +111,7 @@ const features = [
 const categories = [
   {
     title: 'Fungicide',
-    image: 'https://i.imgur.com/UixpfRl.jpeg',
+    image: 'https://i.imgur.com/SDkruxT.jpeg',
     description: 'Combat plant diseases'
   },
   {
@@ -121,7 +121,7 @@ const categories = [
   },
   {
     title: 'Herbicide',
-    image: 'https://media.istockphoto.com/id/958953510/photo/agricultural-worker-takes-care-of-his-estate.jpg?s=612x612&w=0&k=20&c=asNVXLUWqkGa5DKVFo9Z3WWoTu9Hj5DCUuIPbvcpPOQ=',
+    image: '',
     description: 'Smart weed control solutions for-fresh vegetables'
   },
   {
