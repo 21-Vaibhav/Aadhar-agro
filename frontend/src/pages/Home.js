@@ -111,7 +111,7 @@ const features = [
 const categories = [
   {
     title: 'Fungicide',
-    image: 'https://i.imgur.com/eBP1snI.jpeg',
+    image: 'https://i.imgur.com/UixpfRl.jpeg',
     description: 'Combat plant diseases'
   },
   {
