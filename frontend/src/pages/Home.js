@@ -111,7 +111,7 @@ const features = [
 const categories = [
   {
     title: 'Fungicide',
-    image: 'https://media.gettyimages.com/id/968398890/photo/a-bottle-of-luna-fungicide-produced-by-bayer-cropscience-ag-stands-beside-farm-buildings-in.jpg?s=612x612&w=gi&k=20&c=nR8xQmfmGQl27L-z8zJNytwsBXKdUMfngSQi63oy8i4=',
+    image: 'https://i.imgur.com/eBP1snI.jpeg',
     description: 'Combat plant diseases'
   },
   {
