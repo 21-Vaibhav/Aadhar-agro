@@ -17,12 +17,18 @@ import {
   Card,
   CardContent,
   Alert,
+  CircularProgress,
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useCart } from '../context/CartContext';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, updateDoc, doc } from 'firebase/firestore';
 import { db } from '../firebase';
+import { 
+  createRazorpayOrder, 
+  verifyRazorpayPayment, 
+  loadRazorpayScript 
+} from '../services/razorpayService';
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),
@@ -49,6 +55,14 @@ const Checkout = () => {
   const auth = getAuth();
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [razorpayLoaded, setRazorpayLoaded] = useState(false);
+
+  useEffect(() => {
+    // Load Razorpay script when component mounts
+    loadRazorpayScript()
+      .then(() => setRazorpayLoaded(true))
+      .catch((error) => console.error('Failed to load Razorpay:', error));
+  }, []);
 
   // Add authentication check
   useEffect(() => {
@@ -103,6 +117,76 @@ const Checkout = () => {
     );
   };
 
+  // Function to handle Razorpay payment
+  const initiateRazorpayPayment = async (orderId) => {
+    try {
+      setLoading(true);
+      
+      // Create Razorpay order
+      const razorpayOrderData = await createRazorpayOrder(total, orderId);
+      
+      // Configure Razorpay options
+      const options = {
+        key: process.env.REACT_APP_RAZORPAY_KEY_ID,
+        amount: razorpayOrderData.amount,
+        currency: razorpayOrderData.currency,
+        name: 'Your Shop Name',
+        description: 'Purchase Payment',
+        order_id: razorpayOrderData.id,
+        handler: async function(response) {
+          try {
+            // Verify payment on server
+            const verificationResult = await verifyRazorpayPayment(response, orderId);
+            
+            if (verificationResult.success) {
+              // Update order status in Firestore
+              await updateDoc(doc(db, 'orders', orderId), {
+                paymentStatus: 'completed',
+                paymentId: response.razorpay_payment_id,
+                razorpayOrderId: response.razorpay_order_id,
+                updatedAt: serverTimestamp()
+              });
+              
+              // Clear cart and redirect to success page
+              clearCart();
+              navigate('/order-success', { state: { orderId } });
+            } else {
+              throw new Error('Payment verification failed');
+            }
+          } catch (error) {
+            console.error('Error processing payment:', error);
+            setError('Payment verification failed. Please contact support.');
+            setLoading(false);
+          }
+        },
+        prefill: {
+          name: auth.currentUser?.displayName || '',
+          email: auth.currentUser?.email || '',
+          contact: ''  // You might want to collect phone number separately
+        },
+        notes: {
+          orderId: orderId
+        },
+        theme: {
+          color: '#2e7d32'
+        }
+      };
+      
+      const rzp = new window.Razorpay(options);
+      
+      rzp.on('payment.failed', function(response) {
+        setError(`Payment failed: ${response.error.description}`);
+        setLoading(false);
+      });
+      
+      rzp.open();
+    } catch (error) {
+      console.error('Error initiating Razorpay payment:', error);
+      setError('Failed to initiate payment. Please try again.');
+      setLoading(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!auth.currentUser) {
@@ -129,7 +213,8 @@ const Checkout = () => {
           productId: item.id,
           name: item.name,
           price: item.price,
-          quantity: item.quantity
+          quantity: item.quantity,
+          selectedSize: item.selectedSize || 'N/A'
         })),
         shippingAddress: {
           street: shippingAddress.street,
@@ -141,16 +226,21 @@ const Checkout = () => {
       };
 
       const orderRef = await addDoc(collection(db, 'orders'), orderData);
+      const orderId = orderRef.id;
 
       // Handle different payment methods
       if (paymentMethod === 'COD') {
         clearCart();
-        navigate('/order-success', { state: { orderId: orderRef.id } });
+        navigate('/order-success', { state: { orderId } });
+      } else if (paymentMethod === 'RAZORPAY') {
+        // Initiate Razorpay payment
+        await initiateRazorpayPayment(orderId);
+        // Note: Loading state and navigation will be handled by the Razorpay callback
       } else if (paymentMethod === 'UPI') {
         // Redirect to UPI payment gateway
         navigate('/upi-payment', { 
           state: { 
-            orderId: orderRef.id,
+            orderId,
             amount: total
           } 
         });
@@ -158,7 +248,7 @@ const Checkout = () => {
         // Redirect to card payment gateway
         navigate('/card-payment', { 
           state: { 
-            orderId: orderRef.id,
+            orderId,
             amount: total
           } 
         });
@@ -166,7 +256,6 @@ const Checkout = () => {
     } catch (error) {
       setError('Error creating order. Please try again.');
       console.error('Error:', error);
-    } finally {
       setLoading(false);
     }
   };
@@ -253,23 +342,30 @@ const Checkout = () => {
                     </PaymentMethodCard>
                   </Grid>
                   <Grid item xs={12} sm={4}>
+                    <PaymentMethodCard selected={paymentMethod === 'RAZORPAY'}>
+                      <CardContent>
+                        <FormControlLabel
+                          value="RAZORPAY"
+                          control={<Radio />}
+                          label="Razorpay"
+                          disabled={!razorpayLoaded}
+                        />
+                        {!razorpayLoaded && (
+                          <Box display="flex" alignItems="center" mt={1}>
+                            <CircularProgress size={16} sx={{ mr: 1 }} />
+                            <Typography variant="caption">Loading...</Typography>
+                          </Box>
+                        )}
+                      </CardContent>
+                    </PaymentMethodCard>
+                  </Grid>
+                  <Grid item xs={12} sm={4}>
                     <PaymentMethodCard selected={paymentMethod === 'UPI'}>
                       <CardContent>
                         <FormControlLabel
                           value="UPI"
                           control={<Radio />}
                           label="UPI Payment"
-                        />
-                      </CardContent>
-                    </PaymentMethodCard>
-                  </Grid>
-                  <Grid item xs={12} sm={4}>
-                    <PaymentMethodCard selected={paymentMethod === 'CARD'}>
-                      <CardContent>
-                        <FormControlLabel
-                          value="CARD"
-                          control={<Radio />}
-                          label="Credit/Debit Card"
                         />
                       </CardContent>
                     </PaymentMethodCard>
@@ -290,7 +386,7 @@ const Checkout = () => {
                 variant="contained"
                 fullWidth
                 size="large"
-                disabled={loading || !isFormValid()}
+                disabled={loading || !isFormValid() || (paymentMethod === 'RAZORPAY' && !razorpayLoaded)}
                 sx={{
                   backgroundColor: '#2e7d32',
                   '&:hover': {
@@ -322,7 +418,7 @@ const Checkout = () => {
                   }}
                 >
                   <Typography variant="body2" sx={{ color: '#666' }}>
-                    {item.name} ({item.selectedSize}) × {item.quantity}
+                    {item.name} ({item.selectedSize || 'N/A'}) × {item.quantity}
                   </Typography>
                   <Typography variant="body2" sx={{ color: '#1a1a1a' }}>
                     ₹{item.price * item.quantity}
