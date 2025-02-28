@@ -1,4 +1,6 @@
 // api/create-order.js
+require('dotenv').config();
+
 const Razorpay = require('razorpay');
 const { verifyIdToken } = require('./auth-utils');
 

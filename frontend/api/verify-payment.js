@@ -1,4 +1,6 @@
 // api/verify-payment.js
+require('dotenv').config();
+
 const crypto = require('crypto');
 const { verifyIdToken } = require('./auth-utils');
 

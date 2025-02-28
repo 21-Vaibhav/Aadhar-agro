@@ -1,4 +1,6 @@
 // api/auth-utils.js
+require('dotenv').config();
+
 const admin = require('firebase-admin');
 
 // Initialize Firebase Admin
