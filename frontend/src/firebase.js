@@ -6,6 +6,7 @@ import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 
 // Debug environment variables without exposing values
+//random comment
 const debugEnvVars = () => {
   const envVars = [
     'REACT_APP_FIREBASE_API_KEY',
