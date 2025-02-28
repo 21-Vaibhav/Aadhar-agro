@@ -3,7 +3,7 @@ import { getAuth } from 'firebase/auth';
 
 // Replace with your API endpoint URLs
 const API_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://yourdomain.com/api' 
+  ? 'https://aadhar-agro.vercel.app/api' 
   : 'http://localhost:3000/api';
 
 /**
