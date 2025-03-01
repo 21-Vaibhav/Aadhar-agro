@@ -4,6 +4,7 @@ require('dotenv').config();
 const admin = require('firebase-admin');
 
 // Initialize Firebase Admin
+//commit 
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert({
