@@ -45,6 +45,9 @@ module.exports = async (req, res) => {
       key_secret: process.env.RAZORPAY_KEY_SECRET
     });
 
+        console.log("RAZORPAY_KEY_ID: ", process.env.RAZORPAY_KEY_ID);
+    console.log("RAZORPAY_KEY_SECRET: ", process.env.RAZORPAY_KEY_SECRET);
+    console.log("Razorpay API URL: https://api.razorpay.com/v1/orders");
     // Create Razorpay order
     const order = await razorpay.orders.create({
       amount: amount * 100, // Razorpay expects amount in paise
