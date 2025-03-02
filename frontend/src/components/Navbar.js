@@ -30,6 +30,7 @@ import {
   ContactMail as ContactIcon,
   Close as CloseIcon,
   Logout as LogoutIcon,
+  Book as BlogIcon, // Add this line to import the Blog icon
 } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
 import { signOut, onAuthStateChanged } from 'firebase/auth';
@@ -85,6 +86,7 @@ const menuItems = [
   { text: 'Products', icon: <StoreIcon />, path: '/products' },
   { text: 'Categories', icon: <CategoryIcon />, path: '/categories' },
   { text: 'About', icon: <InfoIcon />, path: '/about' },
+  { text: 'Blog', icon: <BlogIcon />, path: '/blog' },
   { text: 'Contact', icon: <ContactIcon />, path: '/contact' },
 ];
 
