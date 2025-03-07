@@ -420,7 +420,7 @@ const Home = () => {
                 color="primary"
                 size={isMobile ? "medium" : "large"}
                 endIcon={<PlayArrowIcon />}
-                component={Link} to="/blog"
+                component={Link} to="/founders-story"
               >
                 Discover More
               </Button>
