@@ -416,14 +416,17 @@ const Home = () => {
                 Our foundation is built on the extensive experience of our team – seasoned professionals with a deep understanding of the agricultural landscape. This expertise fuels our mission: to provide globally benchmarked products that deliver consistent, reliable performance in the field. We offer tailored solutions designed to meet the specific demands of Indian agriculture.
               </Typography>
               <Button
-                variant="contained"
-                color="primary"
-                size={isMobile ? "medium" : "large"}
-                endIcon={<PlayArrowIcon />}
-                component={Link} to="/founders-story"
-              >
-                Discover More
-              </Button>
+  variant="contained"
+  color="primary"
+  size={isMobile ? "medium" : "large"}
+  endIcon={<PlayArrowIcon />}
+  component={Link}
+  to="/founders-story"
+  onClick={() => window.scrollTo(0, 0)} // This will scroll to the top on click
+>
+  Discover More
+</Button>
+
             </Grid>
           </Grid>
         </Container>
