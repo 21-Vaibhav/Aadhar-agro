@@ -111,22 +111,22 @@ const features = [
 const categories = [
   {
     title: 'Fungicide',
-    image: 'https://i.imgur.com/SDkruxT.jpeg',
+    image: 'https://i.imgur.com/BgFH4Bj.jpeg',
     description: 'Combat plant diseases'
   },
   {
     title: 'Pesticide',
-    image: 'https://5.imimg.com/data5/SELLER/Default/2023/12/366454992/GF/WW/XI/74067162/pesticide-packaging-box-make-in-india.jpg',
+    image: 'https://i.imgur.com/ulC4pL6.jpeg',
     description: 'Combat plant diseases'
   },
   {
     title: 'Herbicide',
-    image: '',
+    image: 'https://i.imgur.com/6QBvpMs.jpeg',
     description: 'Smart weed control solutions for-fresh vegetables'
   },
   {
-    title: 'Growth Regulator',
-    image: 'https://media.istockphoto.com/id/958953510/photo/agricultural-worker-takes-care-of-his-estate.jpg?s=612x612&w=0&k=20&c=asNVXLUWqkGa5DKVFo9Z3WWoTu9Hj5DCUuIPbvcpPOQ=',
+    title: 'Plant Growth Regulator',
+    image: 'https://i.imgur.com/T3jm4ZX.jpeg',
     description: 'Growth regulators for optimal crop growth'
   },
 ];
