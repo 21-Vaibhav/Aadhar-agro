@@ -59,7 +59,7 @@ const FoundersStoryPage = () => {
           <Grid item xs={12} md={6}>
             <CardMedia
               component="img"
-              image=""
+              image="https://i.imgur.com/TRb62t6.jpeg"
               alt="Founder in a field"
               sx={{
                 height: { xs: '300px', md: '500px' },

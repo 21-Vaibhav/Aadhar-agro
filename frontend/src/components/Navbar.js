@@ -85,7 +85,7 @@ const menuItems = [
   { text: 'Home', icon: <HomeIcon />, path: '/' },
   { text: 'Products', icon: <StoreIcon />, path: '/products' },
   { text: 'Categories', icon: <CategoryIcon />, path: '/categories' },
-  { text: 'About', icon: <InfoIcon />, path: '/about' },
+  { text: 'About', icon: <InfoIcon />, path: '/founders-story' },
   { text: 'Blog', icon: <BlogIcon />, path: '/blog' },
   { text: 'Contact', icon: <ContactIcon />, path: '/contact' },
 ];
