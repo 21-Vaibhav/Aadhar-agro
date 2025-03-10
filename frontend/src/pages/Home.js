@@ -132,9 +132,9 @@ const categories = [
 ];
 
 const stats = [
-  { label: 'Agriculture Products', value: '500+' },
+  { label: 'Agriculture Products', value: '200+' },
   { label: 'Orders Completed', value: '20000+' },
-  { label: 'Satisfied Farmers', value: '1000+' },
+  { label: 'Satisfied Farmers (offline)', value: '200000+' },
   { label: 'Certified product companies', value: '50+' },
 ];
 
@@ -238,7 +238,7 @@ const Home = () => {
       {/* Categories Section */}
       <Container sx={{ py: { xs: 4, md: 8 } }}>
         <Typography
-          variant="subtitle1"
+          variant="subtitle1"   
           color="primary"
           align="center"
           sx={{ 

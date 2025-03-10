@@ -290,7 +290,7 @@ const Navbar = () => {
                 Call anytime: +98 (000) - 9630
               </Typography>
               <Typography variant="body2">
-                aadharagro@gmail.com
+              aadharagroindia@gmail.com
               </Typography>
             </Stack>
             <Typography variant="body2">
@@ -429,7 +429,7 @@ const Navbar = () => {
                   sx={{
                     color: 'primary.main',
                     fontWeight: 600,
-                    fontSize: '0.9rem',
+                    fontSize: '0.6rem',
                     letterSpacing: '0.2px',
                     textShadow: '0 1px 1px rgba(255,255,255,0.5)',
                   }}
