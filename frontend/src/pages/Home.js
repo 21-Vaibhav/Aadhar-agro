@@ -274,7 +274,6 @@ const Home = () => {
                     bottom: 0,
                     left: 0,
                     right: 0,
-                    bgcolor: 'rgba(0, 0, 0, 0.5)',
                     p: { xs: 2, md: 3 },
                     transition: 'background-color 0.3s',
                   }}

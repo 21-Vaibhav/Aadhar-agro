@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Container,
   Grid,
@@ -25,6 +26,8 @@ const BlogPage = () => {
   const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const postsPerPage = 6;
+  const navigate = useNavigate();
+
 
   // Sample blog post data - replace with your actual data fetching logic
   const samplePosts = [
@@ -53,6 +56,9 @@ const BlogPage = () => {
   const handlePageChange = (event, value) => {
     setPage(value);
     window.scrollTo(0, 0);
+  }; 
+  const handleBlogClick = (blogId) => {
+    navigate(`/blog/${blogId}`);
   };
 
   const handleSearchChange = (event) => {
@@ -114,8 +120,10 @@ const BlogPage = () => {
           mb: 8,
           bgcolor: 'grey.50',
           overflow: 'hidden',
-          boxShadow: 2
+          boxShadow: 2,
+          cursor: 'pointer' // Add cursor pointer to indicate it's clickable
         }}
+        onClick={() => handleBlogClick('featured')} // Using 'featured' as ID for the featured post
       >
         <Grid container>
           <Grid item xs={12} md={6}>
@@ -191,8 +199,10 @@ const BlogPage = () => {
                 transition: 'transform 0.3s ease-in-out',
                 '&:hover': {
                   transform: 'translateY(-8px)'
-                }
+                },
+                cursor: 'pointer' // Add cursor pointer
               }}
+              onClick={() => handleBlogClick(post.id)} // Add onClick handler
             >
               <CardMedia
                 component="img"
