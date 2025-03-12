@@ -116,17 +116,17 @@ const categories = [
   },
   {
     title: 'Pesticide',
-    image: 'https://i.imgur.com/ulC4pL6.jpeg',
+    image: 'https://i.imgur.com/r2tDUNb.jpeg',
     description: 'Combat plant diseases'
   },
   {
     title: 'Herbicide',
-    image: 'https://i.imgur.com/6QBvpMs.jpeg',
+    image: 'https://i.imgur.com/z98s2DP.jpeg',
     description: 'Smart weed control solutions for-fresh vegetables'
   },
   {
     title: 'Plant Growth Regulator',
-    image: 'https://i.imgur.com/T3jm4ZX.jpeg',
+    image: 'https://i.imgur.com/cImFszt.jpeg',
     description: 'Growth regulators for optimal crop growth'
   },
 ];
@@ -284,7 +284,7 @@ const Home = () => {
                     sx={{ 
                       color: 'white', 
                       mb: 1,
-                      fontSize: { xs: '1.1rem', md: '1.25rem' }
+                      fontSize: { xs: '1.1rem', md: '1.1rem' }
                     }}
                   >
                     {category.title}
