@@ -691,10 +691,10 @@ const BlogArticlePage = () => {
               </Box>
             </CardContent>
           </Card>
-          </Grid>
+          </Grid> 
       </Grid>
     </Container>
   );
 };
 
-export default BlogArticlePage;
+export default BlogArticlePage; 
