@@ -520,8 +520,15 @@ const Navbar = () => {
                     sx={{ 
                       borderRadius: '8px',
                       borderWidth: 2,
+                      borderColor: 'green', // Ensure border color remains consistent
+                      paddingX: 2, // Add horizontal padding for better spacing
+                      minWidth: 120, // Prevents excessive shrinking
+                      display: 'flex',
+                      alignItems: 'center',
+                      whiteSpace: 'nowrap', // Prevents text wrapping
                       '&:hover': {
-                        borderWidth: 2,
+                        borderWidth: 1.5,
+                        borderColor: 'darkgreen', // Slightly darker green on hover
                       }
                     }}
                   >

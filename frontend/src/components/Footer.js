@@ -26,9 +26,10 @@ const Footer = () => {
       title: 'Customer Service',
       links: [
         { text: 'Shipping Information', href: '/shipping' },
-        { text: 'refund Policy', href: '/refund-policy.pdf' },
+        { text: 'Refund Policy', href: '/refund-policy.pdf' },
         { text: 'Privacy Policy', href: '/privacy-statement.pdf' },
         { text: 'Terms of Service', href:'/terms-of-service.pdf' },
+        { text: 'Principal Certificate', href:'/Principle ceretficate PC.pdf' },
       ],
     },
   ];
