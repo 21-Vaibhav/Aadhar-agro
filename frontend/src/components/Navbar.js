@@ -287,7 +287,7 @@ const Navbar = () => {
           >
             <Stack direction="row" spacing={3}>
               <Typography variant="body2">
-                Call anytime: +98 (000) - 9630
+                Call anytime: +91 7204274605
               </Typography>
               <Typography variant="body2">
               aadharagroindia@gmail.com

@@ -17,8 +17,7 @@ const Footer = () => {
       title: 'Quick Links',
       links: [
         { text: 'Products', href: '/products' },
-        { text: 'About Us', href: '/about' },
-        { text: 'Contact', href: '/contact' },
+        { text: 'About Us', href: '/founders-story' },
         { text: 'Blog', href: '/blog' },
       ],
     },
@@ -97,6 +96,18 @@ const Footer = () => {
           Phone: +91 1234567890
         </Typography>
       </Box>
+      
+      <Box sx={{ mt: 3 }}>
+        <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 'bold' }}>
+          Official Billing and Operations Partner
+        </Typography>
+        <Typography variant="body2" gutterBottom>
+          J S Industries
+        </Typography>
+        <Typography variant="body2" gutterBottom>
+          Customer Support: jsindustrieshelp@gmail.com
+        </Typography>
+      </Box>
     </>
   );
 
@@ -145,10 +156,20 @@ const Footer = () => {
           Contact Us
         </Typography>
         <Typography variant="body2" sx={{ mb: 1 }}>
-          Email: info@aadhar-agro.com
+          Email: aadharagroindia@gmail.com
         </Typography>
         <Typography variant="body2" sx={{ mb: 2 }}>
-          Phone: +91 1234567890
+          Phone: +91 7204274605
+        </Typography>
+        
+        <Typography variant="h6" gutterBottom sx={{ mt: 2, fontWeight: 'bold' }}>
+          Official Billing and Operations Partner
+        </Typography>
+        <Typography variant="body2" sx={{ mb: 1 }}>
+          J S Industries
+        </Typography>
+        <Typography variant="body2" sx={{ mb: 2 }}>
+          Customer Support: jsindustrieshelp@gmail.com
         </Typography>
       </Grid>
     </Grid>
@@ -217,7 +238,7 @@ const Footer = () => {
                 align={isMobile ? "center" : "right"}
                 sx={{ opacity: 0.8 }}
               >
-                {new Date().getFullYear()} Aadhar Agro. All rights reserved.
+                {new Date().getFullYear()} Aadhar Agro. All rights reserved. | Official Billing & Operations Partner: J S Industries
               </Typography>
             </Grid>
           </Grid>
