@@ -90,7 +90,7 @@ const Footer = () => {
           Contact Us
         </Typography>
         <Typography variant="body2" gutterBottom>
-          Email: info@aadhar-agro.com
+          Email: aadharagroindia@gmail.com
         </Typography>
         <Typography variant="body2" gutterBottom>
           Phone: +91 1234567890

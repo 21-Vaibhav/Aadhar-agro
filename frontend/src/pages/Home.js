@@ -247,7 +247,7 @@ const Home = () => {
             fontSize: { xs: '1rem', md: '1.25rem' }
           }}
         >
-          Our Range of Products
+          Our Solutions
         </Typography>
         <Typography 
           variant="h3" 
