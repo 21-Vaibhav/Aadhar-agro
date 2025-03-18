@@ -65,6 +65,10 @@ const AdminDashboard = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [openDeleteDialog, setOpenDeleteDialog] = useState(false);
   const [customerNames, setCustomerNames] = useState({}); // Store names by userId
+  const [blogs, setBlogs] = useState([]);
+  const [openAddBlogDialog, setOpenAddBlogDialog] = useState(false);
+  const [newBlog, setNewBlog] = useState({ title: "", content: "", image: null });
+
   const [productForm, setProductForm] = useState({
     name: "",
     description: "",
@@ -508,6 +512,121 @@ const AdminDashboard = () => {
     </TableContainer>
   );
 
+  //blog admin section
+
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        const blogSnapshot = await getDocs(collection(db, "articles"));
+        const blogList = blogSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setBlogs(blogList);
+      } catch (err) {
+        setError("Failed to fetch blogs");
+        console.error(err);
+      }
+    };
+  
+    if (!loading && userRole) {
+      fetchBlogs();
+    }
+  }, [loading, userRole]);
+  
+  const handleAddBlog = async () => {
+    if (userRole !== "superAdmin") return;
+  
+    try {
+      let imageUrl = "";
+      if (newBlog.image) {
+        imageUrl = await convertImageToBase64(newBlog.image);
+      }
+  
+      const blogData = {
+        title: newBlog.title,
+        content: newBlog.content,
+        imageUrl,
+        date: new Date(),
+      };
+  
+      const docRef = await addDoc(collection(db, "articles"), blogData);
+      setBlogs([...blogs, { id: docRef.id, ...blogData }]);
+      setNewBlog({ title: "", content: "", image: null });
+      setOpenAddBlogDialog(false);
+    } catch (err) {
+      setError("Failed to add blog");
+      console.error(err);
+    }
+  };
+  const renderBlogsSection = () => (
+    <>
+      <Box sx={{ mb: 2 }}>
+        <Button variant="contained" color="primary" onClick={() => setOpenAddBlogDialog(true)}>
+          Add New Blog
+        </Button>
+      </Box>
+  
+      <Grid container spacing={3} sx={{ mt: 2 }}>
+        {blogs.map((blog) => (
+          <Grid item xs={12} sm={6} md={4} key={blog.id}>
+            <Card>
+              <CardMedia component="img" height="200" image={blog.imageUrl || "/placeholder.jpg"} alt={blog.title} />
+              <CardContent>
+                <Typography variant="h6">{blog.title}</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {blog.content.substring(0, 100)}...
+                </Typography>
+              </CardContent>
+              <CardActions>
+                <Button size="small" color="error" onClick={() => handleDeleteBlog(blog.id)}>
+                  Delete
+                </Button>
+              </CardActions>
+            </Card>
+          </Grid>
+        ))}
+      </Grid>
+  
+      {/* Add Blog Dialog */}
+      <Dialog open={openAddBlogDialog} onClose={() => setOpenAddBlogDialog(false)}>
+        <DialogTitle>Add New Blog</DialogTitle>
+        <DialogContent>
+          <TextField
+            fullWidth label="Blog Title"
+            value={newBlog.title}
+            onChange={(e) => setNewBlog({ ...newBlog, title: e.target.value })}
+            margin="normal" required
+          />
+          <TextField
+            fullWidth label="Content"
+            value={newBlog.content}
+            onChange={(e) => setNewBlog({ ...newBlog, content: e.target.value })}
+            margin="normal" multiline rows={4} required
+          />
+          <input
+            type="file" accept="image/*"
+            onChange={(e) => setNewBlog({ ...newBlog, image: e.target.files[0] })}
+            style={{ marginTop: 16 }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenAddBlogDialog(false)}>Cancel</Button>
+          <Button onClick={handleAddBlog} variant="contained" color="primary">Add Blog</Button>
+        </DialogActions>
+      </Dialog>
+    </>
+  );
+  const handleDeleteBlog = async (blogId) => {
+    try {
+      await deleteDoc(doc(db, "articles", blogId));
+      setBlogs(blogs.filter(blog => blog.id !== blogId));
+    } catch (err) {
+      setError("Failed to delete blog");
+      console.error(err);
+    }
+  };
+
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Typography variant="h4" gutterBottom>
@@ -526,6 +645,7 @@ const AdminDashboard = () => {
           >
             <Tab label="orders" />
             {userRole === "superAdmin" && <Tab label="Products" />}
+            {userRole === "superAdmin" && <Tab label="Blogs" />}
           </Tabs>
 
           {error && (
@@ -536,6 +656,8 @@ const AdminDashboard = () => {
 
           {activeTab === 0 && renderOrdersTable()}
           {activeTab === 1 && userRole === "superAdmin" && renderProductsGrid()}
+          {activeTab === 2 && userRole === "superAdmin" && renderBlogsSection()}
+
 
           {/* Product Edit Dialog */}
           <Dialog open={openProductDialog} onClose={() => setOpenProductDialog(false)}>

@@ -57,6 +57,13 @@ service cloud.firestore {
       allow read, write: if isAuthenticated() && isOwner(userId);
     }
 
+   // Articles (Newly Added)
+    match /articles/{articleId} {
+      allow read: if true; // Anyone can read articles
+      allow create, update, delete: if isSuperAdmin(); // Only super admin can modify articles
+    }
+
+
     // Default deny
     match /{document=**} {
       allow read, write: if false;
