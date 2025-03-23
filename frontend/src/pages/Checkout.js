@@ -127,10 +127,10 @@ const Checkout = () => {
       
       // Configure Razorpay options
       const options = {
-        key: process.env.REACT_APP_RAZORPAY_KEY_ID,
+        key: process.env.REACT_APP_RAZORPAY_KEY_ID, // Make sure this environment variable is properly set
         amount: razorpayOrderData.amount,
         currency: razorpayOrderData.currency,
-        name: 'Your Shop Name',
+        name: 'Aadhar Agro', // Update with your actual shop name
         description: 'Purchase Payment',
         order_id: razorpayOrderData.id,
         handler: async function(response) {

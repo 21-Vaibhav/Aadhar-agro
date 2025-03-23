@@ -29,6 +29,7 @@ export const createRazorpayOrder = async (amount, orderId) => {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
+      credentials: 'include', // Add this line to include credentials
       body: JSON.stringify({
         amount,
         orderId,
@@ -71,6 +72,7 @@ export const verifyRazorpayPayment = async (paymentData, firebaseOrderId) => {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
+      credentials: 'include', // Add this line to include credentials
       body: JSON.stringify({
         ...paymentData,
         firebaseOrderId

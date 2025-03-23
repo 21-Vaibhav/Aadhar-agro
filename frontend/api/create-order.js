@@ -5,10 +5,14 @@ const Razorpay = require('razorpay');
 const { verifyIdToken } = require('./auth-utils');
 
 module.exports = async (req, res) => {
-  // CORS headers
-  res.setHeader('Access-Control-Allow-Origin', process.env.CLIENT_URL || '*');
+  // Get the origin from request headers
+  const origin = req.headers.origin;
+  
+  // CORS headers - allow specific origins
+  res.setHeader('Access-Control-Allow-Origin', origin || 'https://www.aadharagro.com');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
 
   // Handle preflight request
   if (req.method === 'OPTIONS') {
@@ -45,9 +49,6 @@ module.exports = async (req, res) => {
       key_secret: process.env.RAZORPAY_KEY_SECRET
     });
 
-    console.log("RAZORPAY_KEY_ID length: ", process.env.RAZORPAY_KEY_ID?.length);
-    console.log("RAZORPAY_KEY_SECRET length: ", process.env.RAZORPAY_KEY_SECRET?.length);
-    console.log("Razorpay API URL: https://api.razorpay.com/v1/orders");
     // Create Razorpay order
     const order = await razorpay.orders.create({
       amount: amount * 100, // Razorpay expects amount in paise

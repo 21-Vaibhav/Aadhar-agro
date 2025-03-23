@@ -5,10 +5,14 @@ const crypto = require('crypto');
 const { verifyIdToken } = require('./auth-utils');
 
 module.exports = async (req, res) => {
-  // CORS headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  // Get the origin from request headers
+  const origin = req.headers.origin;
+  
+  // CORS headers - allow specific origins
+  res.setHeader('Access-Control-Allow-Origin', origin || 'https://www.aadharagro.com');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
   
   // Handle preflight request
   if (req.method === 'OPTIONS') {
