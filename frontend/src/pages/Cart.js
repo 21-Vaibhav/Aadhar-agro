@@ -104,7 +104,7 @@ const Cart = () => {
                   backgroundColor: '#fff',
                   p: 2
                 }}
-                image={item.images?.[0]}
+                image={item.imageUrl}
                 alt={item.name}
               />
               <CardContent sx={{ 

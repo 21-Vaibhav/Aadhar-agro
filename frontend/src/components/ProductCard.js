@@ -210,18 +210,19 @@ const ProductCard = ({ product }) => {
   const navigate = useNavigate();
   const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
-  const [selectedSize, setSelectedSize] = useState(null);
   const [addingToCart, setAddingToCart] = useState(false);
 
-  const defaultSizes = ['100ml', '200ml', '500ml'];
-  const sizes = product.sizes || defaultSizes;
-
-  useEffect(() => {
-    if (sizes.length > 0 && !selectedSize) {
-      setSelectedSize(sizes[0]);
-    }
-  }, [sizes]);
-
+  const availableSizes = product.availableSizes || [];
+  const initialSize = availableSizes.length > 0 
+    ? availableSizes[0].size 
+    : null;
+  
+  const [selectedSize, setSelectedSize] = useState(initialSize);
+  const [selectedSizeStock, setSelectedSizeStock] = useState(
+    availableSizes.length > 0 
+      ? availableSizes[0].stock 
+      : 0
+  );
   const handleUpperHalfClick = () => {
       navigate(`/products/${product.id}`); 
   }
@@ -232,48 +233,94 @@ const ProductCard = ({ product }) => {
 
   const handleSizeSelect = (size) => {
     setSelectedSize(size);
+    const selectedSizeDetails = availableSizes.find(s => s.size === size);
+    setSelectedSizeStock(selectedSizeDetails ? selectedSizeDetails.stock : 0);
   };
-
+  
   const handleAddToCart = () => {
     if (!selectedSize) return;
     
-    setAddingToCart(true);
-    addToCart(product, quantity, selectedSize);
+    const selectedSizeData = product.availableSizes.find(
+      option => option.size === selectedSize
+    );
     
-    // Show success feedback
+    if (!selectedSizeData || parseInt(selectedSizeData.stock) < quantity) {
+      // Handle out of stock scenario
+      return;
+    }
+    
+    setAddingToCart(true);
+    addToCart({
+      ...product, 
+      price: selectedSizeData.price
+    }, quantity, selectedSize);
+    
     setTimeout(() => {
       setAddingToCart(false);
     }, 1000);
   };
 
-  const handleBuyNow = () => {
-    if (!selectedSize) return;
-    
-    addToCart(product, quantity, selectedSize);
-    navigate('/cart');
+const handleBuyNow = () => {
+  if (!selectedSize) return;
+  
+  // Find the selected size option
+  const selectedSizeData = product.availableSizes.find(
+    option => option.size === selectedSize
+  );
+  
+  // Validate size and stock
+  if (!selectedSizeData) {
+    // Handle error: selected size not found
+    return;
+  }
+  
+  // Check if requested quantity is available
+  const availableStock = parseInt(selectedSizeData.stock);
+  if (quantity > availableStock) {
+    // Optional: Show an error message about insufficient stock
+    return;
+  }
+  
+  // Prepare product object with selected size details
+  const productToAdd = {
+    ...product,
+    price: selectedSizeData.price, // Use size-specific price
+    selectedSize: selectedSize, // Include selected size
+    stock: selectedSizeData.stock // Include size-specific stock
   };
-
+  
+  // Add to cart and navigate to cart
+  addToCart(productToAdd, quantity, selectedSize);
+  navigate('/cart');
+};
+// Update price calculation
   const calculateDiscountedPrice = () => {
+    const selectedSizeData = product.availableSizes.find(
+      option => option.size === selectedSize
+    );
+    const basePrice = selectedSizeData ? selectedSizeData.price : product.price;
+    
     if (product.discount) {
-      const discountAmount = (product.price * product.discount) / 100;
-      return Math.round(product.price - discountAmount);
+      const discountAmount = (basePrice * product.discount) / 100;
+      return Math.round(basePrice - discountAmount);
     }
-    return product.price;
+    return basePrice;
   };
+  console.log("Available Sizes:", availableSizes);
 
   return (
 <StyledCard onClick={handleUpperHalfClick}>
 <div style={{ cursor: "pointer" }}>
   <ImageContainer>
     <ProductImage
-      src={product.images[0] || '/placeholder-image.jpg'}
+      src={product.imageUrl || '/placeholder-image.jpg'}
       alt={product.name}
     />
   </ImageContainer>
 </div>
   <ContentWrapper>
     <CategoryLabel>
-      {product.Category || 'General'}
+      {product.category || 'General'}
     </CategoryLabel>
     <ProductTitle>
       {product.name}
@@ -303,20 +350,22 @@ const ProductCard = ({ product }) => {
       >
         Select Size
       </Typography>
-      <SizeButtonsContainer>
-        {sizes.map((size) => (
-          <SizeButton
-            key={size}
-            selected={selectedSize === size}
-            onClick={(e) => {
-              e.stopPropagation(); // Prevent click from triggering handleUpperHalfClick
-              handleSizeSelect(size);
-            }}
-          >
-            {size}
-          </SizeButton>
-        ))}
-      </SizeButtonsContainer>
+<SizeButtonsContainer>
+  {availableSizes.map((sizeOption) => (
+    <SizeButton
+      key={sizeOption.size}
+      selected={selectedSize === sizeOption.size}
+      onClick={(e) => {
+        e.stopPropagation();
+        handleSizeSelect(sizeOption.size);
+        setSelectedSizeStock(sizeOption.stock);
+      }}
+      disabled={parseInt(sizeOption.stock) <= 0}
+    >
+      {sizeOption.size}
+    </SizeButton>
+  ))}
+</SizeButtonsContainer>
     </Box>
 
     <Box sx={{ mb: { xs: 1, sm: 1.5 } }}>
@@ -359,7 +408,7 @@ const ProductCard = ({ product }) => {
           e.stopPropagation(); // Prevent handleUpperHalfClick from being triggered
           handleAddToCart();
         }}
-        disabled={!selectedSize || addingToCart}
+  disabled={addingToCart || selectedSizeStock <= 0}
         fullWidth
       >
         {addingToCart ? 'Added!' : 'Add to Cart'}
@@ -370,7 +419,7 @@ const ProductCard = ({ product }) => {
           e.stopPropagation(); // Prevent handleUpperHalfClick from being triggered
           handleBuyNow();
         }}
-        disabled={!selectedSize}
+        disabled={addingToCart || selectedSizeStock <= 0}
         fullWidth
       >
         Buy Now

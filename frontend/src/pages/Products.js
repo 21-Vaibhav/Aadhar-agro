@@ -59,9 +59,15 @@ const Products = () => {
         }));
         
         // Extract unique categories and price range, filter out undefined/null values
-        const uniqueCategories = ['all', ...new Set(productsList.map(p => p.Category).filter(Boolean))];
-        const prices = productsList.map(p => p.price || 0);
-        const maxPrice = Math.max(...prices);
+        const uniqueCategories = ['all', ...new Set(
+          productsList
+            .flatMap(p => p.category ? [p.category] : [])
+            .filter(Boolean)
+        )];
+        const prices = productsList.flatMap(p => 
+          p.availableSizes ? p.availableSizes.map(size => size.price) : []
+        );
+        const maxPrice = Math.max(...prices);        
         
         setCategories(uniqueCategories);
         setPriceRange([0, maxPrice || 10000]);
@@ -109,41 +115,51 @@ const Products = () => {
   };
 
   // Filter and sort products
-  const getFilteredProducts = () => {
-    let filtered = [...products];
+// Modify filtering logic
+const getFilteredProducts = () => {
+  let filtered = [...products];
 
-    // Apply search if query exists
-    if (searchQuery && fuse) {
-      const searchResults = fuse.search(searchQuery);
-      filtered = searchResults.map(result => result.item);
-    }
+  // Apply search if query exists
+  if (searchQuery && fuse) {
+    const searchResults = fuse.search(searchQuery);
+    filtered = searchResults.map(result => result.item);
+  }
 
-    // Apply category filter
-    if (category !== 'all') {
-      filtered = filtered.filter(product => product.Category && product.Category === category);
-    }
-
-    // Apply price filter
+  // Apply category filter
+  if (category !== 'all') {
     filtered = filtered.filter(product => 
-      product.price && product.price >= priceRange[0] && product.price <= priceRange[1]
+      product.category && product.category === category
     );
+  }
 
-    // Apply sorting
-    filtered.sort((a, b) => {
-      switch (sortBy) {
-        case 'price-low':
-          return (a.price || 0) - (b.price || 0);
-        case 'price-high':
-          return (b.price || 0) - (a.price || 0);
-        case 'name':
-          return (a.name || '').localeCompare(b.name || '');
-        default:
-          return 0;
-      }
-    });
+  // Apply price filter
+  filtered = filtered.filter(product => 
+    product.availableSizes && product.availableSizes.some(
+      size => size.price >= priceRange[0] && size.price <= priceRange[1]
+    )
+  );
 
-    return filtered;
-  };
+  // Apply sorting
+  filtered.sort((a, b) => {
+    const getLowestPrice = (product) => 
+      Math.min(...(product.availableSizes || []).map(size => size.price));
+
+    switch (sortBy) {
+      case 'price-low':
+        return getLowestPrice(a) - getLowestPrice(b);
+      case 'price-high':
+        return getLowestPrice(b) - getLowestPrice(a);
+      case 'name':
+        return (a.name || '').localeCompare(b.name || '');
+      default:
+        return 0;
+    }
+  });
+
+  return filtered;
+};
+
+
 
   const filteredProducts = getFilteredProducts();
   const pageCount = Math.ceil(filteredProducts.length / productsPerPage);
@@ -211,13 +227,15 @@ const Products = () => {
           <Grid item xs={12} md={3}>
             <Typography gutterBottom>Price Range</Typography>
             <Slider
-              value={priceRange}
-              onChange={handlePriceChange}
-              valueLabelDisplay="auto"
-              min={0}
-              max={Math.max(...products.map(p => p.price))}
-              valueLabelFormat={(value) => `₹${value}`}
-            />
+  value={priceRange}
+  onChange={handlePriceChange}
+  valueLabelDisplay="auto"
+  min={0}
+  max={Math.max(...products.flatMap(p => 
+    p.availableSizes ? p.availableSizes.map(size => size.price) : []
+  ))}
+  valueLabelFormat={(value) => `₹${value}`}
+/>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
               <Typography variant="body2">₹{priceRange[0]}</Typography>
               <Typography variant="body2">₹{priceRange[1]}</Typography>
