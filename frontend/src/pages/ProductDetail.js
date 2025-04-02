@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useCart } from '../context/CartContext';
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useCart } from "../context/CartContext";
 import {
   Container,
   Grid,
@@ -16,7 +16,7 @@ import {
   styled,
   Tabs,
   Tab,
-} from '@mui/material';
+} from "@mui/material";
 import {
   Add as AddIcon,
   Remove as RemoveIcon,
@@ -24,47 +24,51 @@ import {
   LocalShipping as ShippingIcon,
   Security as SecurityIcon,
   Assignment as AssignmentIcon,
-} from '@mui/icons-material';
-import { doc, getDoc } from 'firebase/firestore';
-import { db } from '../firebase';
+} from "@mui/icons-material";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../firebase";
 
 const ProductDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { addToCart } = useCart();
-  
+
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  
+  const [error, setError] = useState("");
+
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState(null);
   const [selectedSizeData, setSelectedSizeData] = useState(null);
   const [activeTab, setActiveTab] = useState(0);
   const [addingToCart, setAddingToCart] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
 
   // Fetch product details
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const productDoc = await getDoc(doc(db, 'products', id));
+        const productDoc = await getDoc(doc(db, "products", id));
         if (productDoc.exists()) {
           const productData = { id: productDoc.id, ...productDoc.data() };
           setProduct(productData);
-          
+
           // Auto-select first available size
-          if (productData.availableSizes && productData.availableSizes.length > 0) {
+          if (
+            productData.availableSizes &&
+            productData.availableSizes.length > 0
+          ) {
             const firstSize = productData.availableSizes[0];
             setSelectedSize(firstSize.size);
             setSelectedSizeData(firstSize);
             setQuantity(1);
           }
         } else {
-          setError('Product not found');
+          setError("Product not found");
         }
       } catch (err) {
-        console.error('Error fetching product:', err);
-        setError('Error loading product details');
+        console.error("Error fetching product:", err);
+        setError("Error loading product details");
       } finally {
         setLoading(false);
       }
@@ -75,7 +79,7 @@ const ProductDetail = () => {
 
   const handleQuantityChange = (delta) => {
     if (!selectedSizeData) return;
-    
+
     const stock = parseInt(selectedSizeData.stock);
     const newQuantity = Math.max(1, Math.min(quantity + delta, stock));
     setQuantity(newQuantity);
@@ -91,15 +95,15 @@ const ProductDetail = () => {
     if (!selectedSizeData) return;
 
     setAddingToCart(true);
-    
+
     const productToAdd = {
       ...product,
       price: selectedSizeData.price,
-      selectedSize: selectedSize
+      selectedSize: selectedSize,
     };
 
     addToCart(productToAdd, quantity, selectedSize);
-    
+
     setTimeout(() => {
       setAddingToCart(false);
     }, 1000);
@@ -111,16 +115,38 @@ const ProductDetail = () => {
     const productToAdd = {
       ...product,
       price: selectedSizeData.price,
-      selectedSize: selectedSize
+      selectedSize: selectedSize,
     };
 
     addToCart(productToAdd, quantity, selectedSize);
-    navigate('/cart');
+    navigate("/cart");
+  };
+
+  // For demonstration purposes - normally would use multiple product images
+  const getProductImages = () => {
+    if (!product) return [];
+
+    // If product has additional images, use those
+    if (product.additionalImages && product.additionalImages.length > 0) {
+      return [product.imageUrl, ...product.additionalImages];
+    }
+
+    // Otherwise, just use the main image 5 times to simulate the thumbnail layout
+    return Array(5).fill(product.imageUrl);
+  };
+
+  const handleThumbnailClick = (index) => {
+    setSelectedImageIndex(index);
   };
 
   if (loading) {
     return (
-      <Box display="flex" justifyContent="center" alignItems="center" height="100vh">
+      <Box
+        display="flex"
+        justifyContent="center"
+        alignItems="center"
+        height="100vh"
+      >
         <CircularProgress />
       </Box>
     );
@@ -129,7 +155,9 @@ const ProductDetail = () => {
   if (error) {
     return (
       <Container>
-        <Alert severity="error" sx={{ mt: 4 }}>{error}</Alert>
+        <Alert severity="error" sx={{ mt: 4 }}>
+          {error}
+        </Alert>
       </Container>
     );
   }
@@ -137,37 +165,67 @@ const ProductDetail = () => {
   if (!product) return null;
 
   // Calculate total stock across all sizes
-  const totalStock = product.availableSizes 
-    ? product.availableSizes.reduce((sum, size) => sum + parseInt(size.stock), 0)
+  const totalStock = product.availableSizes
+    ? product.availableSizes.reduce(
+        (sum, size) => sum + parseInt(size.stock),
+        0
+      )
     : 0;
+
+  const productImages = getProductImages();
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Grid container spacing={4}>
+      <Grid container spacing={3}>
         {/* Product Image */}
         <Grid item xs={12} md={6}>
-          <Paper
-            elevation={0}
-            sx={{
-              p: 2,
-              height: '100%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: '#f5f5f5',
-              borderRadius: 2,
-            }}
-          >
-            <img 
-              src={product.imageUrl}
-              alt={product.name}
-              style={{
-                maxWidth: '100%',
-                maxHeight: '500px',
-                objectFit: 'contain',
+          <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+            {/* Main product image */}
+            <Paper
+              elevation={0}
+              sx={{
+                width: "100%",
+                pt: "100%", // Creates a 1:1 aspect ratio
+                position: "relative",
+                backgroundColor: "#f9f9f9",
+                borderRadius: 1,
+                overflow: "hidden",
               }}
-            />
-          </Paper>
+            >
+              {/* Badge for free delivery */}
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: 10,
+                  left: 10,
+                  zIndex: 2,
+                  bgcolor: "#0d3c61",
+                  color: "white",
+                  px: 2,
+                  py: 0.5,
+                  borderRadius: 1,
+                  fontWeight: 500,
+                  fontSize: 14,
+                }}
+              >
+                Free Delivery
+              </Box>
+
+              <img
+                src={productImages[selectedImageIndex]}
+                alt={product.name}
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "contain",
+                  padding: "1rem",
+                }}
+              />
+            </Paper>  
+          </Box>
         </Grid>
 
         {/* Product Details */}
@@ -179,9 +237,9 @@ const ProductDetail = () => {
 
             <Box sx={{ mb: 2 }}>
               <Typography variant="h5" color="primary" gutterBottom>
-                ₹{selectedSizeData?.price || 'N/A'}
+                ₹{selectedSizeData?.price || "N/A"}
               </Typography>
-              
+
               {totalStock > 0 ? (
                 <Chip
                   label="In Stock"
@@ -197,7 +255,7 @@ const ProductDetail = () => {
                   sx={{ mr: 1 }}
                 />
               )}
-              
+
               {selectedSizeData && parseInt(selectedSizeData.stock) <= 5 && (
                 <Typography color="error" variant="body2">
                   Only {selectedSizeData.stock} left in stock!
@@ -208,11 +266,11 @@ const ProductDetail = () => {
             <Divider sx={{ my: 2 }} />
 
             {/* Product Description */}
-            <Typography 
-              variant="body1" 
-              color="text.secondary" 
-              paragraph 
-              dangerouslySetInnerHTML={{ __html: product.description }}
+            <Typography
+              variant="body1"
+              color="text.secondary"
+              paragraph
+              dangerouslySetInnerHTML={{ __html: product.shortDescription }}
             />
 
             {/* Size Selection */}
@@ -220,15 +278,19 @@ const ProductDetail = () => {
               <Typography variant="subtitle1" gutterBottom>
                 Select Size
               </Typography>
-              <Box sx={{ display: 'flex', gap: 1 }}>
+              <Box sx={{ display: "flex", gap: 1 }}>
                 {product.availableSizes?.map((sizeOption) => (
                   <Button
                     key={sizeOption.size}
-                    variant={selectedSize === sizeOption.size ? "contained" : "outlined"}
+                    variant={
+                      selectedSize === sizeOption.size
+                        ? "contained"
+                        : "outlined"
+                    }
                     color="primary"
                     onClick={() => handleSizeSelect(sizeOption)}
                     disabled={parseInt(sizeOption.stock) <= 0}
-                    sx={{ minWidth: '80px' }}
+                    sx={{ minWidth: "80px" }}
                   >
                     {sizeOption.size}
                     {parseInt(sizeOption.stock) <= 0 && " (Out of Stock)"}
@@ -242,7 +304,7 @@ const ProductDetail = () => {
               <Typography variant="subtitle1" gutterBottom>
                 Quantity
               </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
                 <IconButton
                   onClick={() => handleQuantityChange(-1)}
                   disabled={quantity <= 1}
@@ -253,7 +315,7 @@ const ProductDetail = () => {
                 <IconButton
                   onClick={() => handleQuantityChange(1)}
                   disabled={
-                    !selectedSizeData || 
+                    !selectedSizeData ||
                     quantity >= parseInt(selectedSizeData.stock)
                   }
                 >
@@ -263,7 +325,7 @@ const ProductDetail = () => {
             </Box>
 
             {/* Action Buttons */}
-            <Box sx={{ display: 'flex', gap: 2, mb: 4 }}>
+            <Box sx={{ display: "flex", gap: 2, mb: 4 }}>
               <Button
                 variant="contained"
                 color="primary"
@@ -271,12 +333,11 @@ const ProductDetail = () => {
                 startIcon={<CartIcon />}
                 onClick={handleAddToCart}
                 disabled={
-                  !selectedSizeData || 
-                  parseInt(selectedSizeData.stock) === 0
+                  !selectedSizeData || parseInt(selectedSizeData.stock) === 0
                 }
                 fullWidth
               >
-                {addingToCart ? 'Adding...' : 'Add to Cart'}
+                {addingToCart ? "Adding..." : "Add to Cart"}
               </Button>
               <Button
                 variant="outlined"
@@ -284,8 +345,7 @@ const ProductDetail = () => {
                 size="large"
                 onClick={handleBuyNow}
                 disabled={
-                  !selectedSizeData || 
-                  parseInt(selectedSizeData.stock) === 0
+                  !selectedSizeData || parseInt(selectedSizeData.stock) === 0
                 }
                 fullWidth
               >
@@ -294,22 +354,22 @@ const ProductDetail = () => {
             </Box>
 
             {/* Product Features */}
-            <Box sx={{ bgcolor: '#f5f5f5', p: 2, borderRadius: 2 }}>
+            <Box sx={{ bgcolor: "#f5f5f5", p: 2, borderRadius: 2 }}>
               <Grid container spacing={2}>
                 <Grid item xs={6}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     <ShippingIcon color="primary" />
                     <Typography variant="body2">Free Delivery</Typography>
                   </Box>
                 </Grid>
                 <Grid item xs={6}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     <SecurityIcon color="primary" />
                     <Typography variant="body2">Secure Payment</Typography>
                   </Box>
                 </Grid>
                 <Grid item xs={6}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
                     <AssignmentIcon color="primary" />
                     <Typography variant="body2">Quality Assured</Typography>
                   </Box>
@@ -325,7 +385,7 @@ const ProductDetail = () => {
         <Tabs
           value={activeTab}
           onChange={(e, newValue) => setActiveTab(newValue)}
-          sx={{ borderBottom: 1, borderColor: 'divider' }}
+          sx={{ borderBottom: 1, borderColor: "divider" }}
         >
           <Tab label="Description" />
           <Tab label="Size & Stock" />
@@ -334,31 +394,32 @@ const ProductDetail = () => {
 
         <Box sx={{ py: 3 }}>
           {activeTab === 0 && (
-            <Typography 
+            <Typography
               dangerouslySetInnerHTML={{ __html: product.description }}
             />
           )}
-          
+
           {activeTab === 1 && (
             <Box>
               <Typography variant="h6" gutterBottom>
                 Available Sizes
               </Typography>
               {product.availableSizes?.map((sizeOption, index) => (
-                <Box 
-                  key={index} 
-                  sx={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
+                <Box
+                  key={index}
+                  sx={{
+                    display: "flex",
+                    justifyContent: "space-between",
                     mb: 1,
                     p: 1,
-                    bgcolor: selectedSize === sizeOption.size ? 'action.selected' : 'transparent',
-                    borderRadius: 1
+                    bgcolor:
+                      selectedSize === sizeOption.size
+                        ? "action.selected"
+                        : "transparent",
+                    borderRadius: 1,
                   }}
                 >
-                  <Typography variant="body2">
-                    {sizeOption.size}
-                  </Typography>
+                  <Typography variant="body2">{sizeOption.size}</Typography>
                   <Typography variant="body2">
                     Price: ₹{sizeOption.price} | Stock: {sizeOption.stock}
                   </Typography>
@@ -366,20 +427,22 @@ const ProductDetail = () => {
               ))}
             </Box>
           )}
-          
+
           {activeTab === 2 && (
             <Box>
               <Typography variant="subtitle1" gutterBottom>
                 Shipping Information
               </Typography>
               <Typography paragraph>
-                Free shipping on orders above ₹499. Standard delivery within 5-7 business days.
+                Free shipping on orders above ₹499. Standard delivery within 5-7
+                business days.
               </Typography>
               <Typography variant="subtitle1" gutterBottom>
                 Returns Policy
               </Typography>
               <Typography>
-                Easy returns within 7 days of delivery. Please ensure the product is unused and in original packaging.
+                Easy returns within 7 days of delivery. Please ensure the
+                product is unused and in original packaging.
               </Typography>
             </Box>
           )}
