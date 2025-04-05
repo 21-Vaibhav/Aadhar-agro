@@ -26,7 +26,7 @@ const Footer = () => {
       links: [
         { text: 'Shipping Information', href: '/shipping' },
         { text: 'Refund Policy', href: '/refund-policy' },
-        { text: 'Privacy Policy', href: '/privacy-statement.pdf' },
+        { text: 'Privacy Policy', href: '/privacy-policy' },
         { text: 'Terms of Service', href:'/terms-of-service.pdf' },
         { text: 'Principal Certificate', href:'/Principle ceretficate PC.pdf' },
       ],

@@ -20,6 +20,7 @@ import BlogPage from "./pages/Blog";
 import theme from './theme';
 import BlogArticlePage from "./pages/BlogArticlePage";
 import RefundPolicy from "./pages/RefundPolicy";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 
 function App() {
   return (
@@ -53,6 +54,7 @@ function App() {
                 <Route path="/founders-story" element={<FoundersStoryPage />} />
                 <Route path="/blog/:id" element={<BlogArticlePage />} />
                 <Route path="/refund-policy" element={<RefundPolicy />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy />} />
               </Routes>
             </Box>
             <Footer />
