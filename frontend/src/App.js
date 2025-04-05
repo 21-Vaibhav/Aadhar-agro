@@ -21,6 +21,7 @@ import theme from './theme';
 import BlogArticlePage from "./pages/BlogArticlePage";
 import RefundPolicy from "./pages/RefundPolicy";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
 
 function App() {
   return (
@@ -55,6 +56,7 @@ function App() {
                 <Route path="/blog/:id" element={<BlogArticlePage />} />
                 <Route path="/refund-policy" element={<RefundPolicy />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+                <Route path="/terms-of-service" element={<TermsOfService />} />
               </Routes>
             </Box>
             <Footer />

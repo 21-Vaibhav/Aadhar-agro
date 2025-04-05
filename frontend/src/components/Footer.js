@@ -27,7 +27,7 @@ const Footer = () => {
         { text: 'Shipping Information', href: '/shipping' },
         { text: 'Refund Policy', href: '/refund-policy' },
         { text: 'Privacy Policy', href: '/privacy-policy' },
-        { text: 'Terms of Service', href:'/terms-of-service.pdf' },
+        { text: 'Terms of Service', href:'/terms-of-service' },
         { text: 'Principal Certificate', href:'/Principle ceretficate PC.pdf' },
       ],
     },
