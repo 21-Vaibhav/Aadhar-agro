@@ -249,50 +249,53 @@ const AdminDashboard = () => {
       setError("Failed to update order status");
     }
   };
-  const handleAddProduct = async (e) => {
-    e.preventDefault();
-    if (userRole !== "superAdmin") return;
-  
-    try {
-      setLoading(true);
-      let imageUrl = "";
-  
-      if (newProduct.image) {
-        imageUrl = await convertImageToBase64(newProduct.image);
-      }
-  
-      const productData = {
-        name: newProduct.name,
-        description: newProduct.description,
-        price: parseFloat(newProduct.price),
-        category: newProduct.category,
-        stock: parseInt(newProduct.stock),
-        images: [imageUrl],
-        createdAt: new Date(),
-        sizes: newProduct.sizes,
-      };
-  
-      const docRef = await addDoc(collection(db, "products"), productData);
-      setProducts([...products, { id: docRef.id, ...productData }]);
-  
-      // Reset form and close dialog
-      setNewProduct({
-        name: "",
-        description: "",
-        price: "",
-        category: "",
-        stock: "",
-        image: null,
-        sizes: [],
-      });
-      setOpenAddProductDialog(false);
-    } catch (err) {
-      setError("Failed to add product");
-      console.error(err);
-    } finally {
-      setLoading(false);
+const handleAddProduct = async (e) => {
+  e.preventDefault();
+  if (userRole !== "superAdmin") return;
+
+  try {
+    setLoading(true);
+    let imageUrl = "";
+
+    if (newProduct.image) {
+      imageUrl = await convertImageToBase64(newProduct.image);
     }
-  };
+
+    const productData = {
+      name: newProduct.name,
+      shortDescription: newProduct.shortDescription, // Added short description
+      description: newProduct.description,
+      category: newProduct.category,
+      imageUrl: imageUrl, // Single image URL instead of an array
+      createdAt: new Date(),
+      availableSizes: newProduct.sizes.map((size) => ({
+        size: size.size,
+        price: parseFloat(size.price),
+        stock: parseInt(size.stock),
+      })),
+    };
+
+    const docRef = await addDoc(collection(db, "products"), productData);
+    setProducts([...products, { id: docRef.id, ...productData }]);
+
+    // Reset form and close dialog
+    setNewProduct({
+      name: "",
+      shortDescription: "",
+      description: "",
+      category: "",
+      sizes: [], // Reset sizes
+      image: null,
+    });
+    setOpenAddProductDialog(false);
+  } catch (err) {
+    setError("Failed to add product");
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
+
   const convertImageToBase64 = (file) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -302,10 +305,19 @@ const AdminDashboard = () => {
     });
   };
 
-  // Render functions
-  const renderProductsGrid = () => (
-    <>
-    <Box sx={{ mb: 2 }}>
+const renderProductsGrid = () => (
+  <>
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        mb: 3,
+      }}
+    >
+      <Typography variant="h5" fontWeight="bold">
+        Product List
+      </Typography>
       <Button
         variant="contained"
         color="primary"
@@ -314,29 +326,42 @@ const AdminDashboard = () => {
         Add New Product
       </Button>
     </Box>
-    <Grid container spacing={3} sx={{ mt: 2 }}>
+
+    <Grid container spacing={3}>
       {products.map((product) => (
         <Grid item xs={12} sm={6} md={4} key={product.id}>
-          <Card>
+          <Card
+            sx={{ display: "flex", flexDirection: "column", height: "100%" }}
+          >
             <CardMedia
               component="img"
               height="200"
-              image={product.images?.[0] || "/placeholder.jpg"}
+              image={product.imageUrl || "/placeholder.jpg"}
               alt={product.name}
+              sx={{ objectFit: "contain", p: 2 }}
             />
             <CardContent>
-              <Typography variant="h6">{product.name}</Typography>
-              <Typography variant="body2" color="text.secondary">
-                {product.description}
+              <Typography variant="h6" fontWeight="bold">
+                {product.name}
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mb: 1 }}>
+                {product.shortDescription}
               </Typography>
               <Typography variant="h6" sx={{ mt: 1 }}>
-                ₹{product.price}
+                ₹{Math.min(...product.availableSizes.map((s) => s.price))} - ₹
+                {Math.max(...product.availableSizes.map((s) => s.price))}
               </Typography>
-              <Typography variant="body2">
-                Stock: {product.stock}
+              <Typography variant="body2" sx={{ mt: 1 }}>
+                <strong>Available Sizes:</strong>
+                {product.availableSizes.map((size, idx) => (
+                  <span key={idx}>
+                    {" "}
+                    {size.size} ({size.stock} in stock)
+                  </span>
+                ))}
               </Typography>
             </CardContent>
-            <CardActions>
+            <CardActions sx={{ justifyContent: "flex-end" }}>
               <Button
                 size="small"
                 color="error"
@@ -353,35 +378,46 @@ const AdminDashboard = () => {
         </Grid>
       ))}
     </Grid>
+
     {/* Add Product Dialog */}
-    <Dialog open={openAddProductDialog} onClose={() => setOpenAddProductDialog(false)}>
+    <Dialog
+      fullWidth
+      maxWidth="sm"
+      open={openAddProductDialog}
+      onClose={() => setOpenAddProductDialog(false)}
+    >
       <DialogTitle>Add New Product</DialogTitle>
       <DialogContent>
-        <Box component="form" onSubmit={handleProductSubmit} sx={{ mt: 2 }}>
+        <Box component="form" onSubmit={handleAddProduct} sx={{ mt: 2 }}>
           <TextField
             fullWidth
             label="Product Name"
             value={newProduct.name}
-            onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })}
+            onChange={(e) =>
+              setNewProduct({ ...newProduct, name: e.target.value })
+            }
+            margin="normal"
+            required
+          />
+          <TextField
+            fullWidth
+            label="Short Description"
+            value={newProduct.shortDescription}
+            onChange={(e) =>
+              setNewProduct({ ...newProduct, shortDescription: e.target.value })
+            }
             margin="normal"
             required
           />
           <TextField
             fullWidth
             label="Description"
-            value={newProduct.description}
-            onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })}
-            margin="normal"
             multiline
             rows={4}
-            required
-          />
-          <TextField
-            fullWidth
-            label="Price"
-            type="number"
-            value={newProduct.price}
-            onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })}
+            value={newProduct.description}
+            onChange={(e) =>
+              setNewProduct({ ...newProduct, description: e.target.value })
+            }
             margin="normal"
             required
           />
@@ -389,47 +425,116 @@ const AdminDashboard = () => {
             fullWidth
             label="Category"
             value={newProduct.category}
-            onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
+            onChange={(e) =>
+              setNewProduct({ ...newProduct, category: e.target.value })
+            }
             margin="normal"
             required
           />
-          <TextField
+
+          {/* Sizes Input */}
+          <Typography
+            variant="subtitle1"
+            sx={{ mt: 3, mb: 1, fontWeight: "bold" }}
+          >
+            Available Sizes
+          </Typography>
+          {newProduct.sizes.map((size, index) => (
+            <Box
+              key={index}
+              sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2 }}
+            >
+              <TextField
+                label="Size"
+                value={size.size}
+                onChange={(e) => {
+                  const updatedSizes = [...newProduct.sizes];
+                  updatedSizes[index].size = e.target.value;
+                  setNewProduct({ ...newProduct, sizes: updatedSizes });
+                }}
+                required
+                sx={{ flex: 1 }}
+              />
+              <TextField
+                label="Price"
+                type="number"
+                value={size.price}
+                onChange={(e) => {
+                  const updatedSizes = [...newProduct.sizes];
+                  updatedSizes[index].price = parseFloat(e.target.value);
+                  setNewProduct({ ...newProduct, sizes: updatedSizes });
+                }}
+                required
+                sx={{ flex: 1 }}
+              />
+              <TextField
+                label="Stock"
+                type="number"
+                value={size.stock}
+                onChange={(e) => {
+                  const updatedSizes = [...newProduct.sizes];
+                  updatedSizes[index].stock = parseInt(e.target.value);
+                  setNewProduct({ ...newProduct, sizes: updatedSizes });
+                }}
+                required
+                sx={{ flex: 1 }}
+              />
+              <IconButton
+                color="error"
+                onClick={() => {
+                  setNewProduct({
+                    ...newProduct,
+                    sizes: newProduct.sizes.filter((_, i) => i !== index),
+                  });
+                }}
+              >
+                <DeleteIcon />
+              </IconButton>
+            </Box>
+          ))}
+          <Button
             fullWidth
-            label="Stock"
-            type="number"
-            value={newProduct.stock}
-            onChange={(e) => setNewProduct({ ...newProduct, stock: e.target.value })}
-            margin="normal"
-            required
-          />
-          <input
-            type="file"
-            accept="image/*"
-            onChange={(e) => setNewProduct({ ...newProduct, image: e.target.files[0] })}
-            style={{ marginTop: 16 }}
-          />
-          <TextField
-            fullWidth
-            label="Available Sizes (comma-separated)"
-            value={newProduct.sizes.join(", ")}
-            onChange={(e) => setNewProduct({ 
-              ...newProduct, 
-              sizes: e.target.value.split(",").map(s => s.trim()) 
-            })}
-            margin="normal"
-            required
-          />
+            variant="outlined"
+            sx={{ mt: 1 }}
+            onClick={() =>
+              setNewProduct({
+                ...newProduct,
+                sizes: [
+                  ...newProduct.sizes,
+                  { size: "", price: "", stock: "" },
+                ],
+              })
+            }
+          >
+            + Add Size
+          </Button>
+
+          {/* Image Upload */}
+          <Box sx={{ mt: 3 }}>
+            <Typography variant="subtitle1" fontWeight="bold">
+              Product Image
+            </Typography>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) =>
+                setNewProduct({ ...newProduct, image: e.target.files[0] })
+              }
+            />
+          </Box>
         </Box>
       </DialogContent>
-      <DialogActions>
+      <DialogActions sx={{ px: 3, pb: 2 }}>
         <Button onClick={() => setOpenAddProductDialog(false)}>Cancel</Button>
         <Button onClick={handleAddProduct} variant="contained" color="primary">
           Add Product
         </Button>
       </DialogActions>
     </Dialog>
-  </> 
-  );
+  </>
+);
+
+
 
   const renderOrdersTable = () => (
     <TableContainer component={Paper} sx={{ mt: 2 }}>
