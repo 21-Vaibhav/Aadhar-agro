@@ -326,7 +326,7 @@ const handleBuyNow = () => {
       {product.name}
     </ProductTitle>
     <ProductDescription>
-      {product.description || defaultDescription}
+      {product.shortDescription || defaultDescription}
     </ProductDescription>
     <PriceContainer>
       <ProductPrice>
