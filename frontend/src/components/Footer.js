@@ -47,8 +47,8 @@ const Footer = () => {
           Aadhar Agro
         </Typography>
         <Typography variant="body2" sx={{ mb: 2 }}>
-          Your trusted partner in agriculture, providing quality products
-          and expert guidance to farmers across India.
+          Your trusted partner in agriculture, providing quality products and
+          expert guidance to farmers across India.
         </Typography>
       </Box>
 
@@ -56,14 +56,14 @@ const Footer = () => {
         <Accordion
           key={index}
           sx={{
-            backgroundColor: 'transparent',
-            color: 'inherit',
-            '&:before': { display: 'none' },
-            boxShadow: 'none',
+            backgroundColor: "transparent",
+            color: "inherit",
+            "&:before": { display: "none" },
+            boxShadow: "none",
           }}
         >
           <AccordionSummary
-            expandIcon={<ExpandMoreIcon sx={{ color: 'white' }} />}
+            expandIcon={<ExpandMoreIcon sx={{ color: "white" }} />}
             sx={{ px: 0 }}
           >
             <Typography variant="subtitle1">{section.title}</Typography>
@@ -93,12 +93,16 @@ const Footer = () => {
           Email: aadharagroindia@gmail.com
         </Typography>
         <Typography variant="body2" gutterBottom>
-          Phone: +91 1234567890
+          Phone: +91 7204274605
         </Typography>
       </Box>
-      
+
       <Box sx={{ mt: 3 }}>
-        <Typography variant="subtitle1" gutterBottom sx={{ fontWeight: 'bold' }}>
+        <Typography
+          variant="subtitle1"
+          gutterBottom
+          sx={{ fontWeight: "bold" }}
+        >
           Official Billing and Operations Partner
         </Typography>
         <Typography variant="body2" gutterBottom>
