@@ -22,6 +22,7 @@ import BlogArticlePage from "./pages/BlogArticlePage";
 import RefundPolicy from "./pages/RefundPolicy";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
+import Categories from "./pages/Categories";
 
 function App() {
   return (
@@ -47,6 +48,7 @@ function App() {
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/order-success" element={<OrderSuccess />} />
                 <Route path="/category/:category" element={<Products />} />
+                <Route path="/categories" element={<Categories />} />
                 <Route path="/products" element={<Products />} />
                 <Route path="/products/:id" element={<ProductDetail />} />
                 <Route path="/admin" element={<AdminDashboard />} />

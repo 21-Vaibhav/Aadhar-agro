@@ -1,7 +1,5 @@
 rules_version = '2';
 
-
-
 service cloud.firestore {
   match /databases/{database}/documents {
     // Helper functions
@@ -52,17 +50,22 @@ service cloud.firestore {
       allow write: if isSuperAdmin(); // Only super admin can modify products
     }
 
+    // Categories
+    match /Categories/{categoryId} {
+      allow read: if true; // Anyone can view categories
+      allow write: if isSuperAdmin(); // Only super admin can modify categories
+    }
+
     // Cart items
     match /carts/{userId}/items/{itemId} {
       allow read, write: if isAuthenticated() && isOwner(userId);
     }
 
-   // Articles (Newly Added)
+    // Articles
     match /articles/{articleId} {
       allow read: if true; // Anyone can read articles
       allow create, update, delete: if isSuperAdmin(); // Only super admin can modify articles
     }
-
 
     // Default deny
     match /{document=**} {

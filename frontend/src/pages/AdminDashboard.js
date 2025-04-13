@@ -12,6 +12,7 @@ import {
 } from "firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import { auth, db } from "../firebase";
+import { Add as AddIcon } from "@mui/icons-material";
 
 import {
   Container,
@@ -68,6 +69,12 @@ const AdminDashboard = () => {
   const [blogs, setBlogs] = useState([]);
   const [openAddBlogDialog, setOpenAddBlogDialog] = useState(false);
   const [newBlog, setNewBlog] = useState({ title: "", content: "", image: null });
+const [categories, setCategories] = useState([]);
+const [openAddCategoryDialog, setOpenAddCategoryDialog] = useState(false);
+const [newCategory, setNewCategory] = useState({
+  CategoryName: "",
+  image: null,
+});
 
   const [productForm, setProductForm] = useState({
     name: "",
@@ -732,6 +739,192 @@ const renderProductsGrid = () => (
     }
   };
 
+  //categories section
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const categorySnapshot = await getDocs(collection(db, "Categories"));
+        const categoriesList = categorySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setCategories(categoriesList);
+      } catch (err) {
+        setError("Failed to fetch categories");
+        console.error(err);
+      }
+    };
+
+    if (!loading && userRole === "superAdmin") {
+      fetchCategories();
+    }
+  }, [loading, userRole]);
+
+  const handleAddCategory = async () => {
+    if (userRole !== "superAdmin") return;
+
+    try {
+      setLoading(true);
+      let imageUrl = "";
+
+      if (newCategory.image) {
+        imageUrl = await convertImageToBase64(newCategory.image);
+      }
+
+      const categoryData = {
+        CategoryName: newCategory.CategoryName,
+        imageUrl: imageUrl,
+      };
+
+      const docRef = await addDoc(collection(db, "Categories"), categoryData);
+      setCategories([...categories, { id: docRef.id, ...categoryData }]);
+
+      // Reset form and close dialog
+      setNewCategory({ CategoryName: "", image: null });
+      setOpenAddCategoryDialog(false);
+    } catch (err) {
+      setError("Failed to add category");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Add this function to handle deleting a category
+  const handleDeleteCategory = async (categoryId) => {
+    try {
+      await deleteDoc(doc(db, "Categories", categoryId));
+      setCategories(
+        categories.filter((category) => category.id !== categoryId)
+      );
+    } catch (err) {
+      setError("Failed to delete category");
+      console.error(err);
+    }
+  };
+const renderCategoriesSection = () => (
+  <>
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        mb: 3,
+        mt: 2,
+      }}
+    >
+      <Typography variant="h5" fontWeight="bold">
+        Product Categories
+      </Typography>
+      <Button
+        variant="contained"
+        color="primary"
+        startIcon={<AddIcon />}
+        onClick={() => setOpenAddCategoryDialog(true)}
+      >
+        Add New Category
+      </Button>
+    </Box>
+
+    <Grid container spacing={3}>
+      {categories.map((category) => (
+        <Grid item xs={12} sm={6} md={4} key={category.id}>
+          <Card
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              height: "100%",
+              transition: "transform 0.2s",
+              "&:hover": {
+                transform: "translateY(-5px)",
+                boxShadow: 4,
+              },
+            }}
+          >
+            <CardMedia
+              component="img"
+              height="180"
+              image={category.imageUrl || "/placeholder.jpg"}
+              alt={category.CategoryName}
+              sx={{ objectFit: "cover" }}
+            />
+            <CardContent sx={{ flexGrow: 1 }}>
+              <Typography variant="h6" fontWeight="bold" align="center">
+                {category.CategoryName}
+              </Typography>
+            </CardContent>
+            <CardActions sx={{ justifyContent: "center", pb: 2 }}>
+              <Button
+                size="small"
+                color="error"
+                startIcon={<DeleteIcon />}
+                onClick={() => handleDeleteCategory(category.id)}
+              >
+                Delete
+              </Button>
+            </CardActions>
+          </Card>
+        </Grid>
+      ))}
+    </Grid>
+
+    {/* Add Category Dialog */}
+    <Dialog
+      fullWidth
+      maxWidth="sm"
+      open={openAddCategoryDialog}
+      onClose={() => setOpenAddCategoryDialog(false)}
+    >
+      <DialogTitle>Add New Category</DialogTitle>
+      <DialogContent>
+        <Box component="form" sx={{ mt: 2 }}>
+          <TextField
+            fullWidth
+            label="Category Name"
+            value={newCategory.CategoryName}
+            onChange={(e) =>
+              setNewCategory({ ...newCategory, CategoryName: e.target.value })
+            }
+            margin="normal"
+            required
+          />
+
+          {/* Image Upload */}
+          <Box sx={{ mt: 3 }}>
+            <Typography variant="subtitle1" fontWeight="bold">
+              Category Image
+            </Typography>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) =>
+                setNewCategory({ ...newCategory, image: e.target.files[0] })
+              }
+            />
+            {newCategory.image && (
+              <Typography variant="body2" sx={{ mt: 1 }}>
+                Selected file: {newCategory.image.name}
+              </Typography>
+            )}
+          </Box>
+        </Box>
+      </DialogContent>
+      <DialogActions sx={{ px: 3, pb: 2 }}>
+        <Button onClick={() => setOpenAddCategoryDialog(false)}>Cancel</Button>
+        <Button
+          onClick={handleAddCategory}
+          variant="contained"
+          color="primary"
+          disabled={!newCategory.CategoryName || !newCategory.image}
+        >
+          Add Category
+        </Button>
+      </DialogActions>
+    </Dialog>
+  </>
+);
+
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Typography variant="h4" gutterBottom>
@@ -751,6 +944,7 @@ const renderProductsGrid = () => (
             <Tab label="orders" />
             {userRole === "superAdmin" && <Tab label="Products" />}
             {userRole === "superAdmin" && <Tab label="Blogs" />}
+            {userRole === "superAdmin" && <Tab label="Categories" />}
           </Tabs>
 
           {error && (
@@ -762,23 +956,32 @@ const renderProductsGrid = () => (
           {activeTab === 0 && renderOrdersTable()}
           {activeTab === 1 && userRole === "superAdmin" && renderProductsGrid()}
           {activeTab === 2 && userRole === "superAdmin" && renderBlogsSection()}
-
+          {activeTab === 3 &&
+            userRole === "superAdmin" &&
+            renderCategoriesSection()}
 
           {/* Product Edit Dialog */}
-          <Dialog open={openProductDialog} onClose={() => setOpenProductDialog(false)}>
+          <Dialog
+            open={openProductDialog}
+            onClose={() => setOpenProductDialog(false)}
+          >
             <DialogTitle>Edit Product</DialogTitle>
             <DialogContent>
               <TextField
                 fullWidth
                 label="Name"
                 value={productForm.name}
-                onChange={(e) => setProductForm({ ...productForm, name: e.target.value })}
+                onChange={(e) =>
+                  setProductForm({ ...productForm, name: e.target.value })
+                }
                 margin="normal"
               />
               {/* Add other product form fields */}
             </DialogContent>
             <DialogActions>
-              <Button onClick={() => setOpenProductDialog(false)}>Cancel</Button>
+              <Button onClick={() => setOpenProductDialog(false)}>
+                Cancel
+              </Button>
               <Button onClick={handleProductSubmit} color="primary">
                 Save
               </Button>
@@ -786,14 +989,17 @@ const renderProductsGrid = () => (
           </Dialog>
 
           {/* Delete Confirmation Dialog */}
-          <Dialog open={openDeleteDialog} onClose={() => setOpenDeleteDialog(false)}>
+          <Dialog
+            open={openDeleteDialog}
+            onClose={() => setOpenDeleteDialog(false)}
+          >
             <DialogTitle>Confirm Delete</DialogTitle>
             <DialogContent>
               Are you sure you want to delete this product?
             </DialogContent>
             <DialogActions>
               <Button onClick={() => setOpenDeleteDialog(false)}>Cancel</Button>
-              <Button 
+              <Button
                 onClick={() => handleDeleteProduct(selectedProduct?.id)}
                 color="error"
               >
