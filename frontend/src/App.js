@@ -23,6 +23,7 @@ import RefundPolicy from "./pages/RefundPolicy";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import Categories from "./pages/Categories";
+import ContactPage from "./pages/ContactPage";
 
 function App() {
   return (
@@ -59,6 +60,7 @@ function App() {
                 <Route path="/refund-policy" element={<RefundPolicy />} />
                 <Route path="/privacy-policy" element={<PrivacyPolicy />} />
                 <Route path="/terms-of-service" element={<TermsOfService />} />
+                <Route path="/contact" element={<ContactPage />} />
               </Routes>
             </Box>
             <Footer />
@@ -71,4 +73,3 @@ function App() {
 }
 
 export default App;
-// Dummy commit to redeploy

@@ -29,6 +29,7 @@ import {
   Info as InfoIcon,
   Close as CloseIcon,
   Logout as LogoutIcon,
+  Email as ContactIcon,
   Book as BlogIcon, // Add this line to import the Blog icon
 } from '@mui/icons-material';
 import { styled } from '@mui/material/styles';
@@ -86,6 +87,7 @@ const menuItems = [
   { text: 'Categories', icon: <CategoryIcon />, path: '/categories' },
   { text: 'About', icon: <InfoIcon />, path: '/founders-story' },
   { text: 'Blog', icon: <BlogIcon />, path: '/blog' },
+  { text: 'Contact', icon: <ContactIcon />, path: '/contact' },
 ];
 
 const DrawerHeader = styled('div')(({ theme }) => ({
